@@ -1,0 +1,54 @@
+AudioSplit License Information
+==============================
+
+2019-04-10
+
+AudioSplit is licensed under the MIT license. You may use the AudioSplit application in
+any way you like. You may copy, distribute and modify the AudioSplit software provided you
+include the copyright notice and license in all copies of the software.
+
+AudioSplit links to libraries that are also licensed under the MIT license.
+
+ffmpeg. NET
+Version 3.1.2
+https://github.com/AudioSplit/FFmpeg.NET
+https://github.com/cmxl/FFmpeg.NET
+
+NetEx-ProgressDialog
+Version 2.0.2
+https://github.com/Peckmore/NetEx
+
+AudioSplit uses, but does not link to, the program ffmpeg.exe. FFmpeg is licensed under
+the GNU General Public License (GPL) version 3. You may use the software in any way you
+like. You may copy, distribute and modify the FFmpeg software as long as you make the
+source code available.
+
+ffmpeg
+Version 4.1.1
+http://ffmpeg.org
+
+
+AudioSplit License
+------------------
+
+MIT License
+
+Copyright (&copy;) 2019 Don McClimans
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+
