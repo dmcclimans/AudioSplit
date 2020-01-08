@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;  
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -13,13 +13,13 @@ using System.Runtime.CompilerServices;
 namespace AudioSplit
 {
     /// <summary>
-    /// Settings values. 
+    /// Settings values.
     /// Implement INotifyPropertyChanged.
     /// Persist settings to xml file.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This class will persist the settings data to an XML file. It will attempt to 
+    /// This class will persist the settings data to an XML file. It will attempt to
     /// save the settings in the file "AudioSplitSettings.xml"
     /// in the folder of the executable. However, if that folder is not writable by the
     /// program (which might be the case if the user has installed it to a folder in
@@ -167,7 +167,7 @@ namespace AudioSplit
             set { SetProperty(ref outputFileTemplateValue, value, true); }
         }
 
-        // Properties which are not persisted, but trigger property changed. 
+        // Properties which are not persisted, but trigger property changed.
         private bool outputFolderEnableValue = true;
         [XmlIgnore]
         public bool OutputFolderEnabled
@@ -295,7 +295,6 @@ namespace AudioSplit
                 System.IO.Directory.CreateDirectory(path);
                 path = Path.Combine(path, Filename);
                 XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-                // ns.Add("picard", "http://www.picard-industries.com/XmlSchema");
                 XmlSerializer serializer = new XmlSerializer(typeof(Settings));
                 TextWriter writer = new StreamWriter(path);
                 serializer.Serialize(writer, this);
@@ -358,7 +357,7 @@ namespace AudioSplit
         /// Marks the property as changed only if <paramref name="markChanged"/> is true and the property value has changed.
         /// The <paramref name="markChanged"/> parameter is normally the inverse of the XmlIgore attribute.
         /// </remarks>
-        protected bool SetProperty<T>(ref T oldValue, T newValue, bool markChanged, [CallerMemberName] string propertyName = "") 
+        protected bool SetProperty<T>(ref T oldValue, T newValue, bool markChanged, [CallerMemberName] string propertyName = "")
             where T : System.IEquatable<T>
         {
             if (oldValue != null && oldValue.Equals(newValue))
