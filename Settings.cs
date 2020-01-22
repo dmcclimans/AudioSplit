@@ -167,6 +167,13 @@ namespace AudioSplit
             set { SetProperty(ref outputFileTemplateValue, value, true); }
         }
 
+        private bool writeLogFileValue = false;
+        public bool WriteLogFile
+        {
+            get { return writeLogFileValue; }
+            set { SetProperty(ref writeLogFileValue, value, true); }
+        }
+
         // Properties which are not persisted, but trigger property changed.
         private bool outputFolderEnableValue = true;
         [XmlIgnore]

@@ -135,7 +135,14 @@ You can use these variable substitution symbols in the file name template:
 10. The **help** (question mark) button next to the Filename template will open a help
 window that lists the variable substitution symbols.
 
-11. Click the **Run** button to begin processing.
+11. If desired, check the **Write log file** option. This will save a log file in the
+output folder. The log file contains messages produced by the audio processing program
+(ffmpeg) while processing the files.
+
+    You normally will not need to enable the log file, but it may be useful if there are
+    problems processing the recordings.
+
+12. Click the **Run** button to begin processing.
 
 ## License
 AudioSplit is licensed under the MIT license. You may use the AudioSplit application in

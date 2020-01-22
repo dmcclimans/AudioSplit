@@ -40,6 +40,9 @@ namespace AudioSplit
 
         private FormTemplateHelp FormTemplateHelpDlg;
 
+        // Text file used to write log file.
+        private StreamWriter LogFile { get; set; }
+
         public FormMain()
         {
             InitializeComponent();
@@ -104,12 +107,13 @@ namespace AudioSplit
             chkAutoExcludeFolder.DataBindings.Add("Enabled", Settings, "ChkAutoExcludeEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
             chkAutoExcludeFolder.CheckedChanged += chkAutoExcludeFolder_CheckedChanged;
             txtExcludeFolder.DataBindings.Add("Text", Settings, "ExcludeFolder");
-            txtExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled"); 
+            txtExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
             btnBrowseExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
             cbOutputFormat.DataSource = outputFormats;
+            chkWriteLogFile.DataBindings.Add("Checked", Settings, "WriteLogFile", true, DataSourceUpdateMode.OnPropertyChanged);
             // I can't figure out how to bind the value of the combobox to a property. Probably something
             // simple. Maybe selectedIndex.
-            // So I define an eventhandler for selected index and set the property. 
+            // So I define an eventhandler for selected index and set the property.
             // And I set the value here.
             int index = cbOutputFormat.FindString(Settings.OutputFormat);
             if (index < 0)
@@ -518,20 +522,36 @@ namespace AudioSplit
 
             FFmpeg.Progress += OnProgress;
             FFmpeg.Error += OnError;
-#if DEBUG
             FFmpeg.Data += OnData;
-#endif
+            if (Settings.WriteLogFile)
+            {
+                try
+                {
+                    string LogFilename = Path.Combine(Settings.OutputFolder, "AudioSplit.log");
+                    LogFile = new StreamWriter(LogFilename);
+                }
+                catch (Exception)
+                {
+                    // Ignore error in creating log file.
+                }
+            }
             try
             {
                 if (!String.IsNullOrWhiteSpace(CatchUpCommandLine))
                 {
-                    System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.ffffff") + " Execute ffmpeg -y " +
-                        CatchUpCommandLine);
+                    if (LogFile != null)
+                    {
+                        LogFile.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " ffmpeg -y " +
+                            CatchUpCommandLine);
+                    }
                     await FFmpeg.ExecuteAsync(CatchUpCommandLine, CancelTokenSource.Token);
                     CatchUpElapsedSeconds = CatchUpSplitDuration.TotalSeconds;
                 }
-                System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.ffffff") + " Execute ffmpeg -y " +
-                    SplitCommandLine);
+                if (LogFile != null)
+                {
+                    LogFile.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " ffmpeg -y " +
+                        SplitCommandLine);
+                }
                 await FFmpeg.ExecuteAsync(SplitCommandLine, CancelTokenSource.Token);
             }
             // No catch block -- exception will propagate up.
@@ -539,9 +559,12 @@ namespace AudioSplit
             {
                 FFmpeg.Progress -= OnProgress;
                 FFmpeg.Error -= OnError;
-#if DEBUG
                 FFmpeg.Data -= OnData;
-#endif
+                if (LogFile != null)
+                {
+                    LogFile.Close();
+                    LogFile = null;
+                }
             }
         }
 
@@ -566,7 +589,7 @@ namespace AudioSplit
             if (start >= 0)
             {
                 int stop = start + 1;
-                while (stop < Filename.Length && 
+                while (stop < Filename.Length &&
                     (Filename[stop] == '0' || Filename[stop] == '1'))
                 {
                     stop++;
@@ -839,7 +862,7 @@ namespace AudioSplit
                     ProcessingException = exc;
                 }
             }
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.ffffff") + " ProcessFilesAsync complete");
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " ProcessFilesAsync complete");
 
             bool renameCompleted = false;
             if (ffmpegCompleted)
@@ -944,7 +967,7 @@ namespace AudioSplit
         private int OnProgressCount = 0;
         private void OnProgress(object sender, ConversionProgressEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.ffffff") + " Progress event " +
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " Progress event " +
                 (++OnProgressCount).ToString());
             if (ProcessingDuration != TimeSpan.Zero)
             {
@@ -973,7 +996,7 @@ namespace AudioSplit
         Exception ProcessingException;
         private void OnError(object sender, ConversionErrorEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.ffffff") + " Error: " + e.Exception.Message);
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " Error: " + e.Exception.Message);
             ProcessingException = e.Exception;
         }
 
@@ -992,16 +1015,15 @@ namespace AudioSplit
             }
         }
 
-#if DEBUG
-        private int OnDataCount = 0;
         // OnData is called for each line that ffmpeg.exe writes to the error output.
-        // In debug build, log the lines sent by ffmpeg.exe.
+        // If write log file is checked, log the lines sent by ffmpeg.exe.
         private void OnData(object sender, ConversionDataEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.ffffff") + " Data event " +
-                (++OnDataCount).ToString() + " " + e.Data);
+            if (LogFile != null)
+            {
+                LogFile.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " " + e.Data);
+            }
         }
-#endif
 
         private void btnAbout_Click(object sender, EventArgs e)
         {
