@@ -551,6 +551,7 @@
             // 
             // chkWriteLogFile
             // 
+            this.chkWriteLogFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkWriteLogFile.AutoSize = true;
             this.chkWriteLogFile.Location = new System.Drawing.Point(10, 443);
             this.chkWriteLogFile.Name = "chkWriteLogFile";
