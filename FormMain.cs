@@ -26,7 +26,7 @@ namespace AudioSplit
         // Flag value, indicates the file could not be found.
         private TimeSpan TimeSpanMissing { get; } = new TimeSpan(-1, 0, 0);
         private int MissingFileCount { get; set; } = 0;
-        private int EstimatedSplitFileCount { get; set; } = 0;
+       private int EstimatedSplitFileCount { get; set; } = 0;
         // Fraction of the progress bar that will be used by processing the files. The
         // rest of the progress bar is used by the rename process.
         private const double ProcessingProgressFraction = 0.85;
@@ -71,6 +71,12 @@ namespace AudioSplit
             outputFormats.Add("mp3");
             outputFormats.Add("aif");
 
+            // Load channels combobox
+            List<string> outputChannels = new List<string>();
+            outputChannels.Add("Stereo");
+            outputChannels.Add("Left");
+            outputChannels.Add("Right");
+
             if (!File.Exists(Settings.FfmpegPath))
             {
                 MessageBox.Show("Installation error. The program ffmpeg.exe was not found.", "AudioSplit");
@@ -109,17 +115,26 @@ namespace AudioSplit
             txtExcludeFolder.DataBindings.Add("Text", Settings, "ExcludeFolder");
             txtExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
             btnBrowseExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
-            cbOutputFormat.DataSource = outputFormats;
-            chkWriteLogFile.DataBindings.Add("Checked", Settings, "WriteLogFile", true, DataSourceUpdateMode.OnPropertyChanged);
+
             // I can't figure out how to bind the value of the combobox to a property. Probably something
             // simple. Maybe selectedIndex.
             // So I define an eventhandler for selected index and set the property.
             // And I set the value here.
+            cbOutputFormat.DataSource = outputFormats;
             int index = cbOutputFormat.FindString(Settings.OutputFormat);
             if (index < 0)
                 index = 0;
             cbOutputFormat.SelectedIndex = index;
+
+            cbChannels.DataBindings.Add("Enabled", Settings, "OutputChannelsEnabled");
+            cbChannels.DataSource = outputChannels;
+            index = cbChannels.FindString(Settings.OutputChannels);
+            if (index < 0)
+                index = 0;
+            cbChannels.SelectedIndex = index;
+
             txtOutputTemplate.DataBindings.Add("Text", Settings, "OutputFileTemplate");
+            chkWriteLogFile.DataBindings.Add("Checked", Settings, "WriteLogFile", true, DataSourceUpdateMode.OnPropertyChanged);
 
             Settings.UpdateEnabledProperties();
             Settings.PropertyChanged += Settings_PropertyChanged;
@@ -148,11 +163,13 @@ namespace AudioSplit
                 System.Type.GetType("System.String"));
             InputFilesTable.Columns.Add("Duration",
                 System.Type.GetType("System.TimeSpan"));
+            InputFilesTable.Columns.Add("Channels",
+                 System.Type.GetType("System.String"));
             dgvInputFiles.DataSource = InputFilesTable;
-            dgvInputFiles.Columns[1].Width = 100;
+            dgvInputFiles.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dgvInputFiles.Columns[1].ReadOnly = true;
             dgvInputFiles.Columns[1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-
+            dgvInputFiles.Columns[2].Visible = false;
             InputFilesTable.ColumnChanged += InputFilesTable_ColumnChanged;
         }
 
@@ -163,7 +180,7 @@ namespace AudioSplit
                 if (e.Column.Ordinal == 0)
                 {
                     // User has changed a filename.
-                    await UpdateDuration(e.Row);
+                    await UpdateMetadata(e.Row);
                     ComputeInputFileStats();
                     UpdateAutoFolders();
                 }
@@ -251,7 +268,8 @@ namespace AudioSplit
         }
 
         private async Task<TimeSpan> GetDuration(string filename)
-        {MetaData metadata = await GetMetaData(filename);
+        {
+            MetaData metadata = await GetMetaData(filename);
             return GetDuration(metadata);
         }
 
@@ -290,41 +308,45 @@ namespace AudioSplit
 
                 // Then add the durations, as a separate step because this may take perceptible time;
                 // And check for missing files.
-                await UpdateDurations(TableLength, InputFilesTable.Rows.Count);
+                await UpdateMetadata(TableLength, InputFilesTable.Rows.Count);
 
                 // Update auto folders
                 UpdateAutoFolders();
             }
         }
 
-        // Check the InputFileTable, from startrow to endrow-1.
-        // Set the duration for each row.
-        // If the file is missing, set the duration to missing.
+        // Check the InputFilesTable, from startrow to endrow-1.
+        // Set the duration and channel for each row.
+        // If the file is missing, set the duration to missing, channel to blank.
         // If the file exists but the duration cannot be determined, set the duration to zero.
+        // If the file exists but the channel cannot be determined, set the channel to blank.
         // Set the ProcessingDuration to the sum of the durations for all rows (not just start to end-1).
+        // Set the MaxChannelCount to 1 if all files are "mono", or 2 otherwise.
         // Return the number of missing files.
-        private async Task UpdateDurations(int startrow, int endrow)
+        private async Task UpdateMetadata(int startrow, int endrow)
         {
             for (int i = startrow; i < endrow; i++)
             {
-                await UpdateDuration(InputFilesTable.Rows[i]);
+                await UpdateMetadata(InputFilesTable.Rows[i]);
             }
 
             ComputeInputFileStats();
         }
 
-        private async Task UpdateDuration(DataRow row)
+        private async Task UpdateMetadata(DataRow row)
         {
             string filename = (string)row[0];
             if (!File.Exists(filename))
             {
                 row[1] = TimeSpanMissing;
+                row[2] = "";
             }
             else
             {
                 MetaData metadata = await GetMetaData(filename);
                 TimeSpan dur = GetDuration(metadata);
                 row[1] = dur;
+                row[2] = metadata.AudioData.ChannelOutput;
             }
        }
 
@@ -371,6 +393,7 @@ namespace AudioSplit
         private void ComputeInputFileStats()
         {
             ProcessingDuration = TimeSpan.Zero;
+            int MaxChannelCount = 1;
             MissingFileCount = 0;
             for (int i=0; i<InputFilesTable.Rows.Count; i++)
             {
@@ -379,8 +402,11 @@ namespace AudioSplit
                     MissingFileCount++;
                 else if (timespan > TimeSpan.Zero)
                     ProcessingDuration += timespan;
+                if ((String)InputFilesTable.Rows[i][2] != "mono")
+                    MaxChannelCount = 2;
             }
             txtTotalDuration.Text = FormatTimeSpan(ProcessingDuration);
+            Settings.OutputChannelsEnabled = (InputFilesTable.Rows.Count == 0 || MaxChannelCount > 1);
 
             // Rename (and move for excluded files) takes about 0.2 seconds per file.
             // Depends on the computer and disk drive, of course, but this gives us an
@@ -392,6 +418,7 @@ namespace AudioSplit
         {
             txtTotalDuration.Text = "";
             InputFilesTable.Clear();
+            ComputeInputFileStats();
             UpdateAutoFolders();
         }
 
@@ -460,6 +487,21 @@ namespace AudioSplit
             string CatchUpCommandLine = "";
             TimeSpan CatchUpSplitDuration = TimeSpan.Zero;
 
+            // If we have stereo files, and the user has selected just the left or right channel, 
+            // set the channel map string.
+            string ChannelMapString = "";
+            if (Settings.OutputChannelsEnabled)
+            {
+                if (Settings.OutputChannels == "Right")
+                {
+                    ChannelMapString = ", pan=mono|FC=FR";
+                }
+                else if (Settings.OutputChannels == "Left")
+                {
+                    ChannelMapString = ", pan=mono|FC=FL";
+                }
+            }
+
             if (CatchUpSplit)
             {
                 // User has selected the option to start splits on the hour
@@ -481,7 +523,8 @@ namespace AudioSplit
                         InputFilesList + " -filter_complex \"" +
                         FilterStreamList +
                         "concat=n=" + InputFilesTable.Rows.Count.ToString() +
-                        ":v=0:a=1 [out]\"" +
+                        ":v=0:a=1" +
+                        ChannelMapString + " [out]\"" +
                         " -map \"[out]\" -t " + CatchUpSplitDuration.TotalSeconds.ToString("0.000") +
                           " \"" + OutputFileName + "\"";
                 }
@@ -495,7 +538,8 @@ namespace AudioSplit
                     InputFilesList + " -filter_complex \"" +
                     FilterStreamList +
                     "concat=n=" + InputFilesTable.Rows.Count.ToString() +
-                    ":v=0:a=1 [out]\"" +
+                    ":v=0:a=1" +
+                    ChannelMapString + " [out]\"" +
                     " -map \"[out]\" ";
                 if (CatchUpSplit)
                 {
@@ -513,7 +557,8 @@ namespace AudioSplit
                     InputFilesList + " -filter_complex \"" +
                     FilterStreamList +
                     "concat=n=" + InputFilesTable.Rows.Count.ToString() +
-                    ":v=0:a=1 [out]\"" +
+                    ":v=0:a=1" +
+                    ChannelMapString + " [out]\"" +
                     " -map \"[out]\" \"" + OutputFileName + "\"";
              }
 
@@ -797,7 +842,7 @@ namespace AudioSplit
             // Update the auto folders.
             try
             {
-                await UpdateDurations(0, InputFilesTable.Rows.Count);
+                await UpdateMetadata(0, InputFilesTable.Rows.Count);
                 UpdateAutoFolders();
 
                 if (MissingFileCount > 0)
@@ -1119,7 +1164,15 @@ namespace AudioSplit
             }
         }
 
-         private void txtOutputFolder_Validated(object sender, EventArgs e)
+        private void cbChannels_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (FormIsLoaded)
+            {
+                Settings.OutputChannels= cbChannels.Text;
+            }
+        }
+
+        private void txtOutputFolder_Validated(object sender, EventArgs e)
         {
             if (FormIsLoaded)
             {
@@ -1174,7 +1227,6 @@ namespace AudioSplit
                 "." + Settings.OutputFormat;
             labelExample.Text = example;
         }
-
     }
 
     public class ProcessFilesProgressReport

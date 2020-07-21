@@ -160,6 +160,13 @@ namespace AudioSplit
             set { SetProperty(ref outputFormatValue, value, true); }
         }
 
+        private string outputChannelsValue = "Stereo";
+        public string OutputChannels
+        {
+            get { return outputChannelsValue; }
+            set { SetProperty(ref outputChannelsValue, value, true); }
+        }
+
         private string outputFileTemplateValue = "RRRD-01_@yyyy@MM@dd_@HH@mm@ss";
         public string OutputFileTemplate
         {
@@ -205,6 +212,14 @@ namespace AudioSplit
         {
             get { return excludeFolderEnableValue; }
             set { SetProperty(ref excludeFolderEnableValue, value, true); }
+        }
+
+        private bool outputChannelsEnableValue = true;
+        [XmlIgnore]
+        public bool OutputChannelsEnabled
+        {
+            get { return outputChannelsEnableValue; }
+            set { SetProperty(ref outputChannelsEnableValue, value, true); }
         }
 
         public void UpdateEnabledProperties()

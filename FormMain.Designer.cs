@@ -71,6 +71,8 @@
             this.label13 = new System.Windows.Forms.Label();
             this.labelExample = new System.Windows.Forms.Label();
             this.chkWriteLogFile = new System.Windows.Forms.CheckBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.cbChannels = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitSeconds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitMinutes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitHours)).BeginInit();
@@ -114,7 +116,7 @@
             // btnRun
             // 
             this.btnRun.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnRun.Location = new System.Drawing.Point(10, 473);
+            this.btnRun.Location = new System.Drawing.Point(10, 500);
             this.btnRun.Margin = new System.Windows.Forms.Padding(2);
             this.btnRun.Name = "btnRun";
             this.btnRun.Size = new System.Drawing.Size(56, 19);
@@ -161,7 +163,7 @@
             // 
             this.txtOutputTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOutputTemplate.Location = new System.Drawing.Point(150, 395);
+            this.txtOutputTemplate.Location = new System.Drawing.Point(150, 422);
             this.txtOutputTemplate.Margin = new System.Windows.Forms.Padding(2);
             this.txtOutputTemplate.Name = "txtOutputTemplate";
             this.txtOutputTemplate.Size = new System.Drawing.Size(404, 20);
@@ -171,7 +173,7 @@
             // 
             this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(10, 397);
+            this.label10.Location = new System.Drawing.Point(10, 424);
             this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(98, 13);
@@ -519,7 +521,7 @@
             // 
             this.btnTemplateHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnTemplateHelp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTemplateHelp.Location = new System.Drawing.Point(558, 395);
+            this.btnTemplateHelp.Location = new System.Drawing.Point(558, 422);
             this.btnTemplateHelp.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.btnTemplateHelp.Name = "btnTemplateHelp";
             this.btnTemplateHelp.Size = new System.Drawing.Size(17, 20);
@@ -532,7 +534,7 @@
             // 
             this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(10, 420);
+            this.label13.Location = new System.Drawing.Point(10, 447);
             this.label13.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(95, 13);
@@ -542,7 +544,7 @@
             // labelExample
             // 
             this.labelExample.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.labelExample.Location = new System.Drawing.Point(150, 420);
+            this.labelExample.Location = new System.Drawing.Point(150, 447);
             this.labelExample.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelExample.Name = "labelExample";
             this.labelExample.Size = new System.Drawing.Size(404, 13);
@@ -553,18 +555,43 @@
             // 
             this.chkWriteLogFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkWriteLogFile.AutoSize = true;
-            this.chkWriteLogFile.Location = new System.Drawing.Point(10, 443);
+            this.chkWriteLogFile.Location = new System.Drawing.Point(10, 470);
             this.chkWriteLogFile.Name = "chkWriteLogFile";
             this.chkWriteLogFile.Size = new System.Drawing.Size(84, 17);
             this.chkWriteLogFile.TabIndex = 41;
             this.chkWriteLogFile.Text = "Write log file";
             this.chkWriteLogFile.UseVisualStyleBackColor = true;
             // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(10, 398);
+            this.label14.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(54, 13);
+            this.label14.TabIndex = 43;
+            this.label14.Text = "Channels:";
+            // 
+            // cbChannels
+            // 
+            this.cbChannels.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cbChannels.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbChannels.FormattingEnabled = true;
+            this.cbChannels.Location = new System.Drawing.Point(150, 396);
+            this.cbChannels.Margin = new System.Windows.Forms.Padding(2);
+            this.cbChannels.Name = "cbChannels";
+            this.cbChannels.Size = new System.Drawing.Size(92, 21);
+            this.cbChannels.TabIndex = 44;
+            this.cbChannels.SelectedIndexChanged += new System.EventHandler(this.cbChannels_SelectedIndexChanged);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(625, 504);
+            this.ClientSize = new System.Drawing.Size(625, 531);
+            this.Controls.Add(this.cbChannels);
+            this.Controls.Add(this.label14);
             this.Controls.Add(this.chkWriteLogFile);
             this.Controls.Add(this.labelExample);
             this.Controls.Add(this.label13);
@@ -609,7 +636,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dgvInputFiles);
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.MinimumSize = new System.Drawing.Size(641, 482);
+            this.MinimumSize = new System.Drawing.Size(641, 509);
             this.Name = "FormMain";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "AudioSplit";
@@ -670,6 +697,8 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label labelExample;
         private System.Windows.Forms.CheckBox chkWriteLogFile;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.ComboBox cbChannels;
     }
 }
 
