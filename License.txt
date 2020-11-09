@@ -1,7 +1,7 @@
 AudioSplit License Information
 ==============================
 
-2020-07-21
+2020-11-09
 
 AudioSplit is licensed under the MIT license. You may use the AudioSplit application in
 any way you like. You may copy, distribute and modify the AudioSplit software provided you
@@ -24,7 +24,7 @@ like. You may copy, distribute and modify the FFmpeg software as long as you mak
 source code available.
 
 ffmpeg
-Version 4.3
+Version 4.3.1 (n4.3.1-25-g1936413eda, 2020-08-11)
 http://ffmpeg.org
 
 

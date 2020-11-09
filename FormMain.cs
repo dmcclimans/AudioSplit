@@ -115,6 +115,7 @@ namespace AudioSplit
             txtExcludeFolder.DataBindings.Add("Text", Settings, "ExcludeFolder");
             txtExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
             btnBrowseExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
+            chkRemoveXingHeader.DataBindings.Add("Enabled", Settings, "ChkRemoveXingHeaderEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
 
             // I can't figure out how to bind the value of the combobox to a property. Probably something
             // simple. Maybe selectedIndex.
@@ -125,6 +126,8 @@ namespace AudioSplit
             if (index < 0)
                 index = 0;
             cbOutputFormat.SelectedIndex = index;
+
+            chkRemoveXingHeader.DataBindings.Add("Checked", Settings, "RemoveXingHeader", true, DataSourceUpdateMode.OnPropertyChanged);
 
             cbChannels.DataBindings.Add("Enabled", Settings, "OutputChannelsEnabled");
             cbChannels.DataSource = outputChannels;
@@ -487,7 +490,7 @@ namespace AudioSplit
             string CatchUpCommandLine = "";
             TimeSpan CatchUpSplitDuration = TimeSpan.Zero;
 
-            // If we have stereo files, and the user has selected just the left or right channel, 
+            // If we have stereo files, and the user has selected just the left or right channel,
             // set the channel map string.
             string ChannelMapString = "";
             if (Settings.OutputChannelsEnabled)
@@ -502,6 +505,18 @@ namespace AudioSplit
                 }
             }
 
+            // For MP3 format output, we optionally remove the xing header.
+            // The Audio2NVSPL program used by NPS seems to get confused by these headers.
+            // You could, if you want, also remove the id3v2 header. For this, the options would be:
+            //  mp3Options = " -write_xing 0 -id3v2_version 0";
+            //  segmentMp3Options = " -segment_format_options write_xing=0:ic3v2_version=0";
+            string mp3Options = "";
+            string segmentMp3Options = "";
+            if (Settings.OutputFormat == "mp3" && Settings.RemoveXingHeader)
+            {
+                mp3Options = " -write_xing 0";
+                segmentMp3Options = " -segment_format_options write_xing=0";
+            }
             if (CatchUpSplit)
             {
                 // User has selected the option to start splits on the hour
@@ -526,7 +541,8 @@ namespace AudioSplit
                         ":v=0:a=1" +
                         ChannelMapString + " [out]\"" +
                         " -map \"[out]\" -t " + CatchUpSplitDuration.TotalSeconds.ToString("0.000") +
-                          " \"" + OutputFileName + "\"";
+                        mp3Options +
+                        " \"" + OutputFileName + "\"";
                 }
             }
 
@@ -547,7 +563,9 @@ namespace AudioSplit
                         " -ss " + CatchUpSplitDuration.TotalSeconds.ToString("0.000");
                 }
                 SplitCommandLine +=
-                    " -f segment -segment_time " + SplitDurationTotalSeconds.ToString("0") +
+                    " -f segment" +
+                    segmentMp3Options +
+                    " -segment_time " + SplitDurationTotalSeconds.ToString("0") +
                     " \"" + OutputFileName + "\"";
             }
             else
@@ -559,7 +577,9 @@ namespace AudioSplit
                     "concat=n=" + InputFilesTable.Rows.Count.ToString() +
                     ":v=0:a=1" +
                     ChannelMapString + " [out]\"" +
-                    " -map \"[out]\" \"" + OutputFileName + "\"";
+                    " -map \"[out]\" " +
+                    mp3Options +
+                    " \"" + OutputFileName + "\"";
              }
 
             CancelTokenSource = new CancellationTokenSource();

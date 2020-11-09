@@ -160,6 +160,13 @@ namespace AudioSplit
             set { SetProperty(ref outputFormatValue, value, true); }
         }
 
+        private bool removeXingHeaderValue = false;
+        public bool RemoveXingHeader
+        {
+            get { return removeXingHeaderValue; }
+            set { SetProperty(ref removeXingHeaderValue, value, true); }
+        }
+
         private string outputChannelsValue = "Stereo";
         public string OutputChannels
         {
@@ -182,12 +189,20 @@ namespace AudioSplit
         }
 
         // Properties which are not persisted, but trigger property changed.
-        private bool outputFolderEnableValue = true;
+        private bool outputFolderEnabledValue = true;
         [XmlIgnore]
         public bool OutputFolderEnabled
         {
-            get { return outputFolderEnableValue; }
-            set { SetProperty(ref outputFolderEnableValue, value, true); }
+            get { return outputFolderEnabledValue; }
+            set { SetProperty(ref outputFolderEnabledValue, value, true); }
+        }
+
+        private bool chkRemoveXingHeaderEnabledValue = true;
+        [XmlIgnore]
+        public bool ChkRemoveXingHeaderEnabled
+        {
+            get { return chkRemoveXingHeaderEnabledValue; }
+            set { SetProperty(ref chkRemoveXingHeaderEnabledValue, value, true); }
         }
 
         private bool excludeTimesEnabledValue = true;
@@ -206,20 +221,20 @@ namespace AudioSplit
             set { SetProperty(ref chkAutoExcludeEnabledValue, value, true); }
         }
 
-        private bool excludeFolderEnableValue = true;
+        private bool excludeFolderEnabledValue = true;
         [XmlIgnore]
         public bool ExcludeFolderEnabled
         {
-            get { return excludeFolderEnableValue; }
-            set { SetProperty(ref excludeFolderEnableValue, value, true); }
+            get { return excludeFolderEnabledValue; }
+            set { SetProperty(ref excludeFolderEnabledValue, value, true); }
         }
 
-        private bool outputChannelsEnableValue = true;
+        private bool outputChannelsEnabledValue = true;
         [XmlIgnore]
         public bool OutputChannelsEnabled
         {
-            get { return outputChannelsEnableValue; }
-            set { SetProperty(ref outputChannelsEnableValue, value, true); }
+            get { return outputChannelsEnabledValue; }
+            set { SetProperty(ref outputChannelsEnabledValue, value, true); }
         }
 
         public void UpdateEnabledProperties()
@@ -228,6 +243,7 @@ namespace AudioSplit
             OutputFolderEnabled = !AutoOutputFolder;
             ChkAutoExcludeEnabled = ExcludeEnabled;
             ExcludeFolderEnabled = !AutoExcludeFolder && ExcludeEnabled;
+            ChkRemoveXingHeaderEnabled = OutputFormat == "mp3";
         }
 
         // Properties which are not persisted nor trigger property changed.

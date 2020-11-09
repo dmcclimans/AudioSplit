@@ -88,10 +88,15 @@ MP3, or AIF files.
     you are re-encoding a compressed format such as mp3, but it is necessary in order to get
     accurate times for the recordings.
 
-9. If you are processing stereo files, set **Channels** to "Stereo" to process both
+9. If the **Remove Xing header** option is checked, mp3 files will be written without an
+Xing header frame. This option only applies to mp3 files and is normally off.
+Check this option if you are performing further processing with a program that cannot
+process the Xing header.
+
+10. If you are processing stereo files, set **Channels** to "Stereo" to process both
 channels, or select "Left" or "Right" to extract only one channel of the audio.
 
-10. The **File name template** is used to name the output files.
+11. The **File name template** is used to name the output files.
 You can use these variable substitution symbols in the file name template:
 
     |Symbol|Meaning                                        |
@@ -135,17 +140,17 @@ You can use these variable substitution symbols in the file name template:
         BirdSong_002.mp3
         BirdSong_003.mp3
 
-11. The **help** (question mark) button next to the Filename template will open a help
+12. The **help** (question mark) button next to the Filename template will open a help
 window that lists the variable substitution symbols.
 
-12. If desired, check the **Write log file** option. This will save a log file in the
+13. If desired, check the **Write log file** option. This will save a log file in the
 output folder. The log file contains messages produced by the audio processing program
 (ffmpeg) while processing the files.
 
     You normally will not need to enable the log file, but it may be useful if there are
     problems processing the recordings.
 
-13. Click the **Run** button to begin processing.
+14. Click the **Run** button to begin processing.
 
 ## License
 AudioSplit is licensed under the MIT license. You may use the AudioSplit application in
