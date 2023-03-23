@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using FFmpeg.NET;
 using FFmpeg.NET.Events;
+using System.Xml.Linq;
 
 namespace AudioSplit
 {
@@ -77,12 +78,13 @@ namespace AudioSplit
             outputChannels.Add("Left");
             outputChannels.Add("Right");
 
-            if (!File.Exists(Settings.FfmpegPath))
+            string ffmpegPath = FindPath.FindExePath("ffmpeg.exe");
+            if (string.IsNullOrWhiteSpace(ffmpegPath))
             {
                 MessageBox.Show("Installation error. The program ffmpeg.exe was not found.", "AudioSplit");
                 this.Close();
             }
-            FFmpeg = new Engine(Settings.FfmpegPath);
+            FFmpeg = new Engine(ffmpegPath);
 
             // set up bindings
             dtpStartDate.DataBindings.Add("Value", Settings, "StartDate", true, DataSourceUpdateMode.OnPropertyChanged);
@@ -98,7 +100,7 @@ namespace AudioSplit
             udSplitSeconds.DataBindings.Add("Enabled", Settings, "SplitEnabled");
             chkStartOnHour.DataBindings.Add("Checked", Settings, "StartSplitOnHour", true, DataSourceUpdateMode.OnPropertyChanged);
             chkStartOnHour.DataBindings.Add("Enabled", Settings, "SplitEnabled");
-            chkExclude.DataBindings.Add("Checked", Settings, "ExcludeEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
+            chkExclude.DataBindings.Add("Checked", Settings, "ExcludeData", true, DataSourceUpdateMode.OnPropertyChanged);
             chkExclude.DataBindings.Add("Enabled", Settings, "SplitEnabled");
             dtpExcludeStart.DataBindings.Add("Value", Settings, "ExcludeStartTime", true, DataSourceUpdateMode.OnPropertyChanged);
             dtpExcludeStart.DataBindings.Add("Enabled", Settings, "ExcludeTimesEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
@@ -139,13 +141,12 @@ namespace AudioSplit
             txtOutputTemplate.DataBindings.Add("Text", Settings, "OutputFileTemplate");
             chkWriteLogFile.DataBindings.Add("Checked", Settings, "WriteLogFile", true, DataSourceUpdateMode.OnPropertyChanged);
 
-            Settings.UpdateEnabledProperties();
             Settings.PropertyChanged += Settings_PropertyChanged;
             MakeExample();
 
             FormIsLoaded = true;
         }
-
+        
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Close the help form, so that it saves it's location to Settings.
@@ -776,7 +777,7 @@ namespace AudioSplit
                 }
 
 
-                if (Settings.ExcludeEnabled)
+                if (Settings.ExcludeData)
                 {
                     // Check that there is a specified exclude directory.
                     // Create the exclude directory if necessary.
@@ -812,7 +813,7 @@ namespace AudioSplit
             }
             else // if (!Settings.SplitEnabled)
             {
-                if (Settings.ExcludeEnabled)
+                if (Settings.ExcludeData)
                 {
                     if (MessageBox.Show("Warning: Splitting is not enabled so Exclude will not occur.", "AudioSplit", MessageBoxButtons.OKCancel) ==
                         DialogResult.Cancel)
@@ -1038,15 +1039,9 @@ namespace AudioSplit
             {
                 // We are running in a worker thread created by ffmpeg. So we cannot
                 // just update ProcessFileProgressDialog.Value and .Line2.
-                double processedSeconds;
-                if (e.ProcessedDuration > ProcessingDuration)
-                {
-                    processedSeconds = ProcessingDuration.TotalSeconds;
-                }
-                else
-                {
-                    processedSeconds = e.ProcessedDuration.TotalSeconds;
-                }
+                double processedSeconds = e.ProcessedDuration.TotalSeconds;
+                processedSeconds = Math.Max(processedSeconds, 0);
+                processedSeconds = Math.Min(processedSeconds, ProcessingDuration.TotalSeconds);
                 processedSeconds += CatchUpElapsedSeconds;
                 double fraction = (processedSeconds / ProcessingDuration.TotalSeconds) *
                     ProcessingProgressFraction;

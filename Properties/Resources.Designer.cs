@@ -19,7 +19,7 @@ namespace AudioSplit.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,12 +61,9 @@ namespace AudioSplit.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-        ///{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sa200\sl276\slmult1\lang9\f0\fs22 The \b file name template\b0  specifies how the output files will be named after they are split into segments. You can use the following substitution symbols in the file name template:\par
-        ///\tab\b @yyyy\b0\tab\tab 4 digit year\line\tab\b @yy\b0\tab\tab 2 digit year\par
-        ///\par
-        ///}
-        ///.
+        ///   Looks up a localized string similar to {\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Arial;}}
+        ///{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sa200\sl276\slmult1\lang9\fs18 You can use these variable substitution symbols in the file name template:\par
+        ///\tab\b @yyyy\b0\tab 4 digit year\line\tab\b @yy\b0\tab 2 digit year\line\tab\b @MM\b0\tab Month\line\tab\b @dd\b0\tab Day of month\line\tab\b @HH\b0\tab Hour (24 hour format)\line\tab\b @hh\b0\tab Hour (12 hour format)\line\tab\b @mm\b0\tab Minutes\line\tab\b @ss\ [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string FileNameTemplateHelp {
             get {

@@ -25,9 +25,10 @@ namespace AudioSplit
             lblVersion.Text = String.Format("Version {0}", AssemblyVersion);
             LinkLabel.Link link = new LinkLabel.Link
             {
-                LinkData = Path.Combine(Settings.ExeFolder, "License.txt")
+                LinkData = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "License.txt")
             };
             linkLabel1.Links.Add(link);
+            CenterToParent();
         }
 
         public string AssemblyVersion

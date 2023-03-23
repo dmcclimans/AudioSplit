@@ -14,6 +14,7 @@ recorders.
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Usage](#usage)
+* [Known Issues](#KnownIssues)
 * [License](#license)
 
 ## Features
@@ -25,7 +26,7 @@ time based or sequentially numbered.
 are moved to an Exclude folder.
 
 ## Requirements
-* Requires Windows 7 or later.
+* Requires Windows 10 or later.
 * Requires the 64-bit version of Windows.
 
 ## Installation
@@ -151,6 +152,20 @@ output folder. The log file contains messages produced by the audio processing p
     problems processing the recordings.
 
 14. Click the **Run** button to begin processing.
+
+<a name="KnownIssues"></a>
+## Known Issues
+
+**Settings file moved in version 2.0**
+
+In version 2.0 the file that contains the application settings was renamed and moved.
+If you upgrade from an earlier version you will lose your settings.
+
+To avoid losing you settings you can manually move your settings file. In versions
+before 2.0 the settings file was named ``AudioSplitSettings.xml`` and was
+located in the same folder as the exe file. To use this file with version 2.0 or
+later, rename the file to ``Settings.xml``, and move or copy it to
+``C:\Users\<username>\AppData\Roaming\AudioSplit\``.
 
 ## License
 AudioSplit is licensed under the MIT license. You may use the AudioSplit application in
