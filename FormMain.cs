@@ -14,6 +14,8 @@ using System.Windows.Forms;
 using FFmpeg.NET;
 using FFmpeg.NET.Events;
 using System.Xml.Linq;
+using FolderSelect;
+using CenteredMessageBox;
 
 namespace AudioSplit
 {
@@ -27,7 +29,7 @@ namespace AudioSplit
         // Flag value, indicates the file could not be found.
         private TimeSpan TimeSpanMissing { get; } = new TimeSpan(-1, 0, 0);
         private int MissingFileCount { get; set; } = 0;
-       private int EstimatedSplitFileCount { get; set; } = 0;
+        private int EstimatedSplitFileCount { get; set; } = 0;
         // Fraction of the progress bar that will be used by processing the files. The
         // rest of the progress bar is used by the rename process.
         private const double ProcessingProgressFraction = 0.85;
@@ -51,7 +53,22 @@ namespace AudioSplit
 
         private void FormMain_Load(object sender, EventArgs e)
         {
-            Settings = Settings.Load();
+            MessageBoxEx.Caption = "AudioSplit";
+
+            try
+            {
+                Settings = Settings.Load();
+            }
+            catch (Exception ex)
+            {
+                // Use MessageBox here, rather than MessageBoxEx, because the form isn't loaded yet.
+                // MessageBoxEx will center relative to the form's position, which is 0,0, so it will
+                // display the messagebox in the upper left corner. MessageBox will display in the
+                // center of the screen, which is better when no form is visible.
+                MessageBox.Show(ex.Message, "AudioSplit", MessageBoxButtons.OK);
+                Settings = new Settings();
+            }
+
             if (Settings.FormMainLocation.X != 0 ||
                   Settings.FormMainLocation.Y != 0)
             {
@@ -81,43 +98,43 @@ namespace AudioSplit
             string ffmpegPath = FindPath.FindExePath("ffmpeg.exe");
             if (string.IsNullOrWhiteSpace(ffmpegPath))
             {
-                MessageBox.Show("Installation error. The program ffmpeg.exe was not found.", "AudioSplit");
+                MessageBoxEx.Show(this, "Installation error. The program ffmpeg.exe was not found.");
                 this.Close();
             }
             FFmpeg = new Engine(ffmpegPath);
 
             // set up bindings
-            dtpStartDate.DataBindings.Add("Value", Settings, "StartDate", true, DataSourceUpdateMode.OnPropertyChanged);
-            dtpStartTime.DataBindings.Add("Value", Settings, "StartTime", true, DataSourceUpdateMode.OnPropertyChanged);
-            chkSplit.DataBindings.Add("Checked", Settings, "SplitEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
-            udSplitDays.DataBindings.Add("Value", Settings, "SplitDurationDays");
-            udSplitDays.DataBindings.Add("Enabled", Settings, "SplitEnabled");
-            udSplitHours.DataBindings.Add("Value", Settings, "SplitDurationHours");
-            udSplitHours.DataBindings.Add("Enabled", Settings, "SplitEnabled");
-            udSplitMinutes.DataBindings.Add("Value", Settings, "SplitDurationMinutes");
-            udSplitMinutes.DataBindings.Add("Enabled", Settings, "SplitEnabled");
-            udSplitSeconds.DataBindings.Add("Value", Settings, "SplitDurationSeconds");
-            udSplitSeconds.DataBindings.Add("Enabled", Settings, "SplitEnabled");
-            chkStartOnHour.DataBindings.Add("Checked", Settings, "StartSplitOnHour", true, DataSourceUpdateMode.OnPropertyChanged);
-            chkStartOnHour.DataBindings.Add("Enabled", Settings, "SplitEnabled");
-            chkExclude.DataBindings.Add("Checked", Settings, "ExcludeData", true, DataSourceUpdateMode.OnPropertyChanged);
-            chkExclude.DataBindings.Add("Enabled", Settings, "SplitEnabled");
-            dtpExcludeStart.DataBindings.Add("Value", Settings, "ExcludeStartTime", true, DataSourceUpdateMode.OnPropertyChanged);
-            dtpExcludeStart.DataBindings.Add("Enabled", Settings, "ExcludeTimesEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
-            dtpExcludeStop.DataBindings.Add("Value", Settings, "ExcludeStopTime", true, DataSourceUpdateMode.OnPropertyChanged);
-            dtpExcludeStop.DataBindings.Add("Enabled", Settings, "ExcludeTimesEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
-            chkAutoOutputFolder.DataBindings.Add("Checked", Settings, "AutoOutputFolder", true, DataSourceUpdateMode.OnPropertyChanged);
+            dtpStartDate.DataBindings.Add("Value", Settings, nameof(Settings.StartDate), true, DataSourceUpdateMode.OnPropertyChanged);
+            dtpStartTime.DataBindings.Add("Value", Settings, nameof(Settings.StartTime), true, DataSourceUpdateMode.OnPropertyChanged);
+            chkSplit.DataBindings.Add("Checked", Settings, nameof(Settings.SplitEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
+            udSplitDays.DataBindings.Add("Value", Settings, nameof(Settings.SplitDurationDays));
+            udSplitDays.DataBindings.Add("Enabled", Settings, nameof(Settings.SplitEnabled));
+            udSplitHours.DataBindings.Add("Value", Settings, nameof(Settings.SplitDurationHours));
+            udSplitHours.DataBindings.Add("Enabled", Settings, nameof(Settings.SplitEnabled));
+            udSplitMinutes.DataBindings.Add("Value", Settings, nameof(Settings.SplitDurationMinutes));
+            udSplitMinutes.DataBindings.Add("Enabled", Settings, nameof(Settings.SplitEnabled));
+            udSplitSeconds.DataBindings.Add("Value", Settings, nameof(Settings.SplitDurationSeconds));
+            udSplitSeconds.DataBindings.Add("Enabled", Settings, nameof(Settings.SplitEnabled));
+            chkStartOnHour.DataBindings.Add("Checked", Settings, nameof(Settings.StartSplitOnHour), true, DataSourceUpdateMode.OnPropertyChanged);
+            chkStartOnHour.DataBindings.Add("Enabled", Settings, nameof(Settings.SplitEnabled));
+            chkExclude.DataBindings.Add("Checked", Settings, nameof(Settings.ExcludeData), true, DataSourceUpdateMode.OnPropertyChanged);
+            chkExclude.DataBindings.Add("Enabled", Settings, nameof(Settings.SplitEnabled));
+            dtpExcludeStart.DataBindings.Add("Value", Settings, nameof(Settings.ExcludeStartTime), true, DataSourceUpdateMode.OnPropertyChanged);
+            dtpExcludeStart.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeTimesEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
+            dtpExcludeStop.DataBindings.Add("Value", Settings, nameof(Settings.ExcludeStopTime), true, DataSourceUpdateMode.OnPropertyChanged);
+            dtpExcludeStop.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeTimesEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
+            chkAutoOutputFolder.DataBindings.Add("Checked", Settings, nameof(Settings.AutoOutputFolder), true, DataSourceUpdateMode.OnPropertyChanged);
             chkAutoOutputFolder.CheckedChanged += chkAutoOutputFolder_CheckedChanged;
-            txtOutputFolder.DataBindings.Add("Text", Settings, "OutputFolder");
-            txtOutputFolder.DataBindings.Add("Enabled", Settings, "OutputFolderEnabled");
-            btnBrowseOutputFolder.DataBindings.Add("Enabled", Settings, "OutputFolderEnabled");
-            chkAutoExcludeFolder.DataBindings.Add("Checked", Settings, "AutoExcludeFolder", true, DataSourceUpdateMode.OnPropertyChanged);
-            chkAutoExcludeFolder.DataBindings.Add("Enabled", Settings, "ChkAutoExcludeEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
+            txtOutputFolder.DataBindings.Add("Text", Settings, nameof(Settings.OutputFolder));
+            txtOutputFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.OutputFolderEnabled));
+            btnBrowseOutputFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.OutputFolderEnabled));
+            chkAutoExcludeFolder.DataBindings.Add("Checked", Settings, nameof(Settings.AutoExcludeFolder), true, DataSourceUpdateMode.OnPropertyChanged);
+            chkAutoExcludeFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.ChkAutoExcludeEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
             chkAutoExcludeFolder.CheckedChanged += chkAutoExcludeFolder_CheckedChanged;
-            txtExcludeFolder.DataBindings.Add("Text", Settings, "ExcludeFolder");
-            txtExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
-            btnBrowseExcludeFolder.DataBindings.Add("Enabled", Settings, "ExcludeFolderEnabled");
-            chkRemoveXingHeader.DataBindings.Add("Enabled", Settings, "ChkRemoveXingHeaderEnabled", true, DataSourceUpdateMode.OnPropertyChanged);
+            txtExcludeFolder.DataBindings.Add("Text", Settings, nameof(Settings.ExcludeFolder));
+            txtExcludeFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeFolderEnabled));
+            btnBrowseExcludeFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeFolderEnabled));
+            chkRemoveXingHeader.DataBindings.Add("Enabled", Settings, nameof(Settings.ChkRemoveXingHeaderEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
 
             // I can't figure out how to bind the value of the combobox to a property. Probably something
             // simple. Maybe selectedIndex.
@@ -129,24 +146,24 @@ namespace AudioSplit
                 index = 0;
             cbOutputFormat.SelectedIndex = index;
 
-            chkRemoveXingHeader.DataBindings.Add("Checked", Settings, "RemoveXingHeader", true, DataSourceUpdateMode.OnPropertyChanged);
+            chkRemoveXingHeader.DataBindings.Add("Checked", Settings, nameof(Settings.RemoveXingHeader), true, DataSourceUpdateMode.OnPropertyChanged);
 
-            cbChannels.DataBindings.Add("Enabled", Settings, "OutputChannelsEnabled");
+            cbChannels.DataBindings.Add("Enabled", Settings, nameof(Settings.OutputChannelsEnabled));
             cbChannels.DataSource = outputChannels;
             index = cbChannels.FindString(Settings.OutputChannels);
             if (index < 0)
                 index = 0;
             cbChannels.SelectedIndex = index;
 
-            txtOutputTemplate.DataBindings.Add("Text", Settings, "OutputFileTemplate");
-            chkWriteLogFile.DataBindings.Add("Checked", Settings, "WriteLogFile", true, DataSourceUpdateMode.OnPropertyChanged);
+            txtOutputTemplate.DataBindings.Add("Text", Settings, nameof(Settings.OutputFileTemplate));
+            chkWriteLogFile.DataBindings.Add("Checked", Settings, nameof(Settings.WriteLogFile), true, DataSourceUpdateMode.OnPropertyChanged);
 
             Settings.PropertyChanged += Settings_PropertyChanged;
             MakeExample();
 
             FormIsLoaded = true;
         }
-        
+
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Close the help form, so that it saves it's location to Settings.
@@ -155,9 +172,19 @@ namespace AudioSplit
                 FormTemplateHelpDlg.Close();
             }
 
-            Settings.FormMainLocation = this.Location;
-            Settings.FormMainSize = this.Size;
-            Settings.Save();
+            // Save the form location
+            if (this.WindowState == FormWindowState.Minimized || this.WindowState == FormWindowState.Maximized)
+            {
+                Settings.FormMainLocation = this.RestoreBounds.Location;
+                Settings.FormMainSize = this.RestoreBounds.Size;
+            }
+            else
+            {
+                Settings.FormMainLocation = this.Location;
+                Settings.FormMainSize = this.Size;
+            }
+
+            Settings.SaveIfChanged();
         }
 
         public void CreateDataTable()
@@ -266,7 +293,7 @@ namespace AudioSplit
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "AudioSplit");
+                MessageBoxEx.Show(this, ex.Message);
             }
             return metadata;
         }
@@ -291,6 +318,7 @@ namespace AudioSplit
             dlg.CheckFileExists = true;
             dlg.Multiselect = true;
             dlg.Filter = "Audio files (*.wav;*.mp3;*.flac;*.aif)|*.wav;*.mp3;*.flac;*.aif|All files (*.*)|*.*";
+
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 txtTotalDuration.Text = "";
@@ -306,7 +334,7 @@ namespace AudioSplit
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message, "AudioSplit");
+                        MessageBoxEx.Show(this, ex.Message);
                     }
                 }
 
@@ -740,7 +768,7 @@ namespace AudioSplit
             // Check that there are files to process
             if (InputFilesTable.Rows.Count == 0)
             {
-                MessageBox.Show("No files to process.", "AudioSplit");
+                MessageBoxEx.Show(this, "No files to process.");
                 return;
             }
 
@@ -748,7 +776,7 @@ namespace AudioSplit
             // Create the output directory if necessary.
             if (String.IsNullOrWhiteSpace(Settings.OutputFolder))
             {
-                MessageBox.Show("No output folder specified", "AudioSplit");
+                MessageBoxEx.Show(this, "No output folder specified");
                 return;
             }
             System.IO.Directory.CreateDirectory(Settings.OutputFolder);
@@ -756,7 +784,7 @@ namespace AudioSplit
             // Check that the output folder is empty
             if (Directory.GetFiles(Settings.OutputFolder).Length > 0)
             {
-                MessageBox.Show("The output folder must be empty.", "AudioSplit");
+                MessageBoxEx.Show(this, "The output folder must be empty.");
                 return;
             }
 
@@ -772,7 +800,7 @@ namespace AudioSplit
                 // problems with duplicate file names.
                 if (SplitDurationTotalSeconds < 5.0)
                 {
-                    MessageBox.Show("Split duration must be at least 5 seconds.", "AudioSplit");
+                    MessageBoxEx.Show(this, "Split duration must be at least 5 seconds.");
                     return;
                 }
 
@@ -783,7 +811,7 @@ namespace AudioSplit
                     // Create the exclude directory if necessary.
                     if (String.IsNullOrWhiteSpace(Settings.ExcludeFolder))
                     {
-                        MessageBox.Show("No exclude folder specified", "AudioSplit");
+                        MessageBoxEx.Show(this, "No exclude folder specified");
                         return;
                     }
                     System.IO.Directory.CreateDirectory(Settings.ExcludeFolder);
@@ -791,7 +819,7 @@ namespace AudioSplit
                     // Check that the exclude folder is empty
                     if (Directory.GetFiles(Settings.ExcludeFolder).Length > 0)
                     {
-                        MessageBox.Show("The exclude folder must be empty.", "AudioSplit");
+                        MessageBoxEx.Show(this, "The exclude folder must be empty.");
                         return;
                     }
 
@@ -799,8 +827,8 @@ namespace AudioSplit
                     // Exclude can never happen.
                     if (ExcludeDurationTotalSeconds <= SplitDurationTotalSeconds)
                     {
-                        if (MessageBox.Show("Warning: Exclude duration is smaller than the split duration, so Exclude will not occur.", "AudioSplit", MessageBoxButtons.OKCancel) ==
-                             DialogResult.Cancel)
+                        if (MessageBoxEx.Show(this, "Warning: Exclude duration is smaller than the split duration, so Exclude will not occur.", 
+                                MessageBoxButtons.OKCancel) == DialogResult.Cancel)
                         {
                             return;
                         }
@@ -815,8 +843,8 @@ namespace AudioSplit
             {
                 if (Settings.ExcludeData)
                 {
-                    if (MessageBox.Show("Warning: Splitting is not enabled so Exclude will not occur.", "AudioSplit", MessageBoxButtons.OKCancel) ==
-                        DialogResult.Cancel)
+                    if (MessageBoxEx.Show(this, "Warning: Splitting is not enabled so Exclude will not occur.", 
+                        MessageBoxButtons.OKCancel) == DialogResult.Cancel)
                     {
                         return;
                     }
@@ -833,8 +861,8 @@ namespace AudioSplit
                 }
                  else if (Settings.SplitDurationMinutes != 0 || Settings.SplitDurationSeconds != 0)
                 {
-                    if (MessageBox.Show("Warning: Split length is not an even number of hours, so the option to start files on the hour will be ignored.", "AudioSplit", MessageBoxButtons.OKCancel) ==
-                        DialogResult.Cancel)
+                    if (MessageBoxEx.Show(this, "Warning: Split length is not an even number of hours, so the option to start files on the hour will be ignored.", 
+                        MessageBoxButtons.OKCancel) == DialogResult.Cancel)
                     {
                         return;
                     }
@@ -842,8 +870,8 @@ namespace AudioSplit
                 else if ((ProcessingDuration.TotalHours < 60) &&
                     (Settings.StartTime.Hour == Settings.StartTime.Add(ProcessingDuration).Hour))
                 {
-                    if (MessageBox.Show("Warning: Total duration is too short to split on the hour.", "AudioSplit", MessageBoxButtons.OKCancel) ==
-                         DialogResult.Cancel)
+                    if (MessageBoxEx.Show(this, "Warning: Total duration is too short to split on the hour.", 
+                        MessageBoxButtons.OKCancel) == DialogResult.Cancel)
                     {
                         return;
                     }
@@ -868,13 +896,13 @@ namespace AudioSplit
 
                 if (MissingFileCount > 0)
                 {
-                    MessageBox.Show("One or more of the input files is missing.", "AudioSplit");
+                    MessageBoxEx.Show(this, "One or more of the input files is missing.");
                     return;
                 }
             }
             catch (Exception exc)
             {
-                MessageBox.Show(exc.Message, "AudioSplit");
+                MessageBoxEx.Show(this, exc.Message);
                 return;
             }
 
@@ -940,7 +968,7 @@ namespace AudioSplit
                 }
                 catch (Exception exc)
                 {
-                    MessageBox.Show(exc.Message, "AudioSplit");
+                    MessageBoxEx.Show(this, exc.Message);
                 }
             }
 
@@ -952,7 +980,7 @@ namespace AudioSplit
             RunTimer.Stop();
             if (wasCanceled)
             {
-                MessageBox.Show("Run was canceled", "AudioSplit");
+                MessageBoxEx.Show(this, "Run was canceled");
             }
             else if (ProcessingException != null)
             {
@@ -964,11 +992,11 @@ namespace AudioSplit
                     if (pos > 0)
                         msg = msg.Remove(0, pos + 2);
                 }
-                MessageBox.Show("Error during processing:\r\n" + msg, "AudioSplit");
+                MessageBoxEx.Show(this, "Error during processing:\r\n" + msg);
             }
             else if (renameCompleted)
             {
-                MessageBox.Show("Run completed in " + FormatTimeSpan(RunTimer.Elapsed), "AudioSplit");
+                MessageBoxEx.Show(this, "Run completed in " + FormatTimeSpan(RunTimer.Elapsed));
             }
 
             this.Enabled = true;
@@ -992,14 +1020,14 @@ namespace AudioSplit
               + Regex.Escape(new string(System.IO.Path.GetInvalidPathChars())) + "]");
             if (containsABadCharacter.IsMatch(Settings.OutputFileTemplate))
             {
-                MessageBox.Show("Invalid character in File name Template");
+                MessageBoxEx.Show(this, "Invalid character in File name Template");
                 return false;
             };
 
             // Check that the output template does not start with "Split"
             if (Settings.OutputFileTemplate.StartsWith("Split", StringComparison.InvariantCultureIgnoreCase))
             {
-                MessageBox.Show("The file name template cannot start with \"split\".");
+                MessageBoxEx.Show(this, "The file name template cannot start with \"split\".");
                 return false;
             }
 
@@ -1017,13 +1045,13 @@ namespace AudioSplit
                     !Settings.OutputFileTemplate.Contains("@0")
                     )
                 {
-                    MessageBox.Show("File name template must contain one or more variables (besides year and month).");
+                    MessageBoxEx.Show(this, "File name template must contain one or more variables (besides year and month).");
                     return false;
                 }
                 if (Settings.OutputFileTemplate.Contains("@hh") &&
                     !Settings.OutputFileTemplate.Contains("@tt"))
                 {
-                    MessageBox.Show("File name template contains @hh but does not include @tt. (Use @HH for 24-hour format of hours.)");
+                    MessageBoxEx.Show(this, "File name template contains @hh but does not include @tt. (Use @HH for 24-hour format of hours.)");
                     return false;
                 }
             }

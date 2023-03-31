@@ -247,9 +247,9 @@ namespace AudioSplit
         {
             return SimpleSettings.SettingsBase.Load<Settings>();
         }
-        public bool Save()
+        public void Save()
         {
-            return base.Save(typeof(Settings));
+            base.Save(typeof(Settings));
         }
         public void SaveIfChanged()
         {

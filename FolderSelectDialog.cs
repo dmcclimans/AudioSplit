@@ -2,19 +2,13 @@
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace AudioSplit
+namespace FolderSelect
 {
     /// <summary>
     /// Present the Windows Vista-style open file dialog to select a folder. Fall back for
     /// older Windows Versions.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// Adapted from code by ErikE.Shuriken, which was in turn adapted from code by Bill
-    /// Seddon. See
-    /// https://stackoverflow.com/questions/31059/how-do-you-configure-an-openfiledialog-to-select-folders
-    /// Both sets of code are explicity said to have no license and can be used in any way.
-    /// </para>
     /// <para>
     /// Use like this:
     /// </para>
@@ -27,6 +21,18 @@ namespace AudioSplit
     ///         musicFolderTextBox.Text = dialog.FileName;
     ///     }
     /// </code>
+    ///
+    /// <para>
+    /// Adapted from code by ErikE.Shuriken, which was in turn adapted from code by Bill
+    /// Seddon. See
+    /// https://stackoverflow.com/questions/31059/how-do-you-configure-an-openfiledialog-to-select-folders
+    /// Both sets of code are explicity said to have no license and can be used in any way.
+    /// </para>
+    /// <para>
+    /// This method is for .net Framework. It is not needed in .net core, 5.0 and beyond,
+    /// because the standard FolderBrowserDialog now shows a vista style open file dialog
+    /// to select a folder.
+    /// </para>
     /// </remarks>
     public class FolderSelectDialog
     {

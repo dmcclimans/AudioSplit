@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CenteredMessageBox;
 
 namespace AudioSplit
 {
@@ -58,7 +59,7 @@ namespace AudioSplit
                 }
                 catch (Exception exc)
                 {
-                    MessageBox.Show(exc.Message);
+                    MessageBoxEx.Show(this, exc.Message);
                 }
             }
         }
