@@ -122,6 +122,8 @@ See the [Templates](#templates) section below for details.
 
 ## Templates
 
+**Variables in Output folders and file names**
+
 AudioSplit uses templates to define the generated folder and file names.
 
 You can use these symbols in the output folder, exclude folder, and file name templates:
@@ -193,6 +195,23 @@ Example 4:
     @OutDir\Exclude
 
 will use a folder named Exclude underneath the Output folder.
+
+**Variables in Input name template**
+
+AudioSplit also uses templates to extract information from the input file name, or one of
+its parent folder names. The **Input Name Template** can use @Site or any of the date and
+time symbols. The system will attempt to match this to the name of the first file in the
+**Input Files** list. If it does not match the file name, the system will try the name of
+the folder that contains the first input file, then the parent folder, grandparent folder,
+etc.
+
+If a match is found, the variables will be used to populate the Site Name and Start Date
+and Time fields in the Main form.
+
+If you use a standardized format for your file or folder names, this allows you to process
+different sites with different start date/times without changes to your configuration.
+When you select the file to process, the system automatically picks up the site name and
+start date/time, and then can use those variables to set the output folder and file names.
 
 ## Options
 
