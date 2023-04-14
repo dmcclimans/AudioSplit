@@ -13,7 +13,9 @@ recorders.
 * [Features](#features)
 * [Requirements](#requirements)
 * [Installation](#installation)
-* [Usage](#usage)
+* [Main Form](#MainForm)
+* [Options](#options)
+* [Templates](#templates)
 * [Known Issues](#KnownIssues)
 * [License](#license)
 
@@ -22,8 +24,8 @@ recorders.
 * Split audio files into segments of a specified length.
 * Name the output files based on a file name template that can be either date and
 time based or sequentially numbered.
-* Optionally exclude sounds recorded during specified hours of the day. Excluded files are not deleted, but
-are moved to an Exclude folder.
+* Optionally exclude sounds recorded during specified hours of the day.
+Excluded files are not deleted, but are moved to an Exclude folder.
 
 ## Requirements
 * Requires Windows 10 or later.
@@ -37,30 +39,41 @@ are moved to an Exclude folder.
 * There is no install program.
   Unzip the files into a folder, and run `AudioSplit.exe`.
 
-
-## Usage
+<a name="MainForm"></a>
+## Main Form
 ![Screenshot](Screenshot1.png)
 
-1. The **Input files** table contains the list of files to be processed.
-Use the **Browse** button to select the input files, or manually enter the path and
-file name.
-In the Open Files dialog you can select multiple files by holding down the ctrl or shift key
-while you click with the mouse. Use ctrl+A to select all files in a folder.
+1.  The **Input files** table contains the list of files to be processed.
+    Use the **Browse** button to select the input files, or manually enter the path and
+    file name.
 
-2. Files are processed in the order listed.
-Use the **up** and **down** arrow buttons to change the order of the files for processing.
+    In the Open Files dialog you can select multiple files by holding down the ctrl or shift key
+    while you click with the mouse. Use ctrl+A to select all files in a folder.
 
-3. Set the **Start date and time** of the first file. This will be used to name the output files.
+    Files are processed in the order listed.
+    Use the **up** and **down** arrow buttons to change the order of the files for processing.
 
-4. Check the **Split into files of length** checkbox to split the combined input files
+2.  If you specify an **Input name template**, the system will attempt to analyze the file
+name and folder names of the first file in the **Input files** list. It can extract the
+site name, date, and time from the file or folder name.
+See the [Templates](#templates) section below for details.
+
+3. The **Site name** field can be used to name the output files and/or folders.
+This field can be automatically populated using the **Input name template**.
+See the [Templates](#templates) section below for details.
+
+4. Set the **Start date and time** of the first file. This will be used to name the output
+files. This field can be automatically populated using the **Input name template**.
+
+5. Check the **Split into files of length** checkbox to split the combined input files
 into output files (segments) with the specified length.
 
-5. Check the **Start files on the hour** checkbox to start files on the hour. You should
+6. Check the **Start files on the hour** checkbox to start files on the hour. You should
 set the split length to be 1 or more hours, with zero for the minutes and seconds. The first
 file will be a "catch-up" file of length less than an hour, and subsequent files will
 start on the hour.
 
-6. Check the **Exclude data between** checkbox to specify certain files are to be
+6. Check the **Exclude data between** checkbox to specify that certain files are to be
 excluded.
 Specify a time range for each day to exclude.
 
@@ -69,17 +82,6 @@ Specify a time range for each day to exclude.
 
     The exclude time can be during the day (such as 7 am to 7 pm -- 0700 to 1900) or overnight
     (such as 7 pm to 7 am -- 1900 to 0700).
-
-7. Specify the **Output** and **Exclude** folders.
-
-    If the **Auto** checkbox is checked, the associated folder is automatically set. For
-    Output, the automatic folder is a folder named `Hourly` on the same level as the first
-    file in the input files list. For example, if the first input file is `S:\ToadCalls\Raw
-    Data\REC001.wav`, the automatic output folder would be `S:\ToadCalls\Hourly`.
-
-    For Exclude, the automatic folder is a folder named `Exclude` that is underneath the
-    output folder. For example, if the output folder is `S:\ToadCalls\Hourly`, the automatic
-    exclude folder would be `S:\ToadCalls\Hourly\Exclude`.
 
 8. Set the **Output format** to the type of output file desired. You can produce WAV, FLAC,
 MP3, or AIF files.
@@ -97,61 +99,127 @@ process the Xing header.
 10. If you are processing stereo files, set **Channels** to "Stereo" to process both
 channels, or select "Left" or "Right" to extract only one channel of the audio.
 
-11. The **File name template** is used to name the output files.
-You can use these variable substitution symbols in the file name template:
+11. Specify the **Output** folder.
+You can use template variables in the path and folder name.
+See the [Templates](#templates) section below for details.
 
-    |Symbol|Meaning                                        |
-    |------|-----------------------------------------------|
-    |@yyyy |4 digit year                                   |
-    |@yy   |2 digit year                                   |
-    |@MM   |Month                                          |
-    |@dd   |Day of month                                   |
-    |@HH   |Hour (24 hour format)                          |
-    |@hh   |Hour (12 hour format)                          |
-    |@mm   |Minutes                                        |
-    |@ss   |Seconds                                        |
-    |@tt   |AM/PM indicator                                |
-    |@0    |Sequential file number starting with 0         |
-    |@00   |2 digit sequential file number starting with 0 |
-    |@000  |3 digit sequential file number starting with 0 |
-    |@1    |Sequential file number starting with 1         |
-    |@01   |2 digit sequential file number starting with 1 |
-    |@001  |3 digit sequential file number starting with 1 |
+    This folder will be created if it does not already exist. If it does exist, it must be
+    empty.
 
-    For sequential file numbers, you can include additional leading zeros to force the
-    numbers to have additional digits.
+12. Specify the **Exclude** folder. This is the folder where any files completely within
+the exclude times will be placed.
+You can use template variables in the path and folder name.
+See the [Templates](#templates) section below for details.
 
-    Example 1:
+    This folder will be created if it does not already exist. If it does exist, it must be
+    empty.
 
-        RRRD-01_@yyyy@MM@dd_@HH@mm@ss
+13. The **File name template** is used to name the output files.
+You can use template variables in the path and folder name.
+See the [Templates](#templates) section below for details.
 
-    will produce a a set of filenames like this:
+14. Click the **Run** button to begin processing.
 
-        RRRD-01_20190408_152300.wav
-        RRRD-01_20190408_160000.wav
-        RRRD-01_20190408_170000.wav
+## Templates
 
-    Example 2:
+AudioSplit uses templates to define the generated folder and file names.
 
-    	BirdSong_@001
+You can use these symbols in the output folder, exclude folder, and file name templates:
 
-    will produce a set of filenames like this:
+|Symbol     |Meaning                                        |
+|-----------|-----------------------------------------------|
+|@Site      |Site name                                      |
+|@yyyy      |4 digit year                                   |
+|@yy        |2 digit year                                   |
+|@MM        |Month                                          |
+|@dd        |Day of month                                   |
+|@HH        |Hour (24 hour format)                          |
+|@hh        |Hour (12 hour format)                          |
+|@mm        |Minutes                                        |
+|@ss        |Seconds                                        |
+|@tt        |AM/PM indicator                                |
 
-        BirdSong_001.mp3
-        BirdSong_002.mp3
-        BirdSong_003.mp3
+Example 1:
 
-12. The **help** (question mark) button next to the Filename template will open a help
-window that lists the variable substitution symbols.
+    @Site_@yyyy@MM@dd_@HH@mm@ss
 
-13. If desired, check the **Write log file** option. This will save a log file in the
+will produce a set of filenames like this:
+
+    RRRD19_20230403_082904.wav
+    RRRD19_20230403_090000.wav
+    RRRD19_20230403_100000.wav
+
+For the **Output file name template**, you can use symbols that create a sequential file
+number.
+
+|Symbol     |Meaning                                        |
+|-----------|-----------------------------------------------|
+|@0         |Sequential file number starting with 0         |
+|@00        |2 digit sequential file number starting with 0 |
+|@000       |3 digit sequential file number starting with 0 |
+|@1         |Sequential file number starting with 1         |
+|@01        |2 digit sequential file number starting with 1 |
+|@001       |3 digit sequential file number starting with 1 |
+
+
+You can include additional leading zeros to force the numbers to have additional digits.
+
+Example 2:
+
+	@Site_@001
+
+will produce a set of filenames like this:
+
+    RRRD19_001.mp3
+    RRRD19_002.mp3
+    RRRD19_003.mp3
+
+For the Output and Exclude folder names, you can use the @InDir symbol, and for the
+Exclude folder you can also use the @OutDir symbol
+
+|Symbol     |Meaning                                        |
+|-----------|-----------------------------------------------|
+|@InDir     |The folder of the first file in Input Files    |
+|@OutDir    |The output folder                              |
+
+Example 3:
+
+    @InDir\..\Hourly
+
+will use a folder named Hourly that is a sibling folder to the input folder.
+
+Example 4:
+
+    @OutDir\Exclude
+
+will use a folder named Exclude underneath the Output folder.
+
+## Options
+
+The menu has an **Options** item that allows you to control some aspects of the main form.
+
+![ScreenshotMenu1](ScreenshotMenu1.png)
+
+1.  When **Show date as yyyy-mm-dd** is checked, the system will display the start date in
+international format, with the year first, then the month, and then the day.  If this
+option is not checked, dates will display in the default format of your version of
+Windows.
+
+    This option does not affect templates. It only affects the Start Date display.
+
+2. When **Show time in 24 hour format** is checked, the system will display times in
+24-hour format. If this option is not checked, times will display in the default format of
+your version of Windows.
+
+    This option does not affect templates. It only affects the Start time and Exclude
+    times.
+
+3. When **Write log file** is checked, the system will save a log file in the
 output folder. The log file contains messages produced by the audio processing program
 (ffmpeg) while processing the files.
 
     You normally will not need to enable the log file, but it may be useful if there are
     problems processing the recordings.
-
-14. Click the **Run** button to begin processing.
 
 <a name="KnownIssues"></a>
 ## Known Issues

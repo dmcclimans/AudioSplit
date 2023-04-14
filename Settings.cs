@@ -22,19 +22,33 @@ namespace AudioSplit
     {
         // Properties that are serialized, and trigger the PropertyChanged events.
 
-        private bool autoExcludeFolderValue = true;
+        // AutoExcludeFolder and AutoOutputFolder properties were used in AudioSplit
+        // version before 3.0. It has been replaced in version 3.0 and later by
+        // template variables in the ExcludeFolder and OutputFolder properties.
+        // In order to provide a smooth upgrade experience, we define methods
+        // ShouldSerializeAutoExcludeFolder and ShouldSerializeAutoOutputFolder.
+        // These methods always return false. This causes the AutoExcludeFolder and
+        // AutoOutputFolder properties to not be serialized, but still allow them to 
+        // be serialized. 
+        // In the Load method below, after deserialization we check the values of the
+        // AutoExcludeFolder and AutoOutputFolder properties. If true, we set the 
+        // OuputFolder and/or ExcludeFolder properties to equivalent values using 
+        // template variables.
+        private bool autoExcludeFolderValue = false;
         public bool AutoExcludeFolder
         {
             get { return autoExcludeFolderValue; }
             set { SetProperty(ref autoExcludeFolderValue, value, true); }
         }
+        public bool ShouldSerializeAutoExcludeFolder() { return false; }
 
-        private bool autoOutputFolderValue = true;
+        private bool autoOutputFolderValue = false;
         public bool AutoOutputFolder
         {
             get { return autoOutputFolderValue; }
             set { SetProperty(ref autoOutputFolderValue, value, true); }
         }
+        public bool ShouldSerializeAutoOutputFolder() { return false; }
 
         private bool excludeDataValue = false;
         public bool ExcludeData
@@ -43,7 +57,7 @@ namespace AudioSplit
             set { SetProperty(ref excludeDataValue, value, true); }
         }
 
-        private string excludeFolderValue = "";
+        private string excludeFolderValue = "@OutDir\\Exclude";
         public string ExcludeFolder
         {
             get { return excludeFolderValue; }
@@ -92,6 +106,13 @@ namespace AudioSplit
             set { SetProperty(ref formTemplateHelpSizeValue, value, true); }
         }
 
+        private string inputNameTemplateValue = "@Site_@yyyy@MM@dd_@HH@mm@ss";
+        public string InputNameTemplate
+        {
+            get { return inputNameTemplateValue; }
+            set { SetProperty(ref inputNameTemplateValue, value, true); }
+        }
+
         private string outputChannelsValue = "Stereo";
         public string OutputChannels
         {
@@ -99,14 +120,14 @@ namespace AudioSplit
             set { SetProperty(ref outputChannelsValue, value, true); }
         }
 
-        private string outputFileTemplateValue = "RRRD-01_@yyyy@MM@dd_@HH@mm@ss";
+        private string outputFileTemplateValue = "@Site_@yyyy@MM@dd_@HH@mm@ss";
         public string OutputFileTemplate
         {
             get { return outputFileTemplateValue; }
             set { SetProperty(ref outputFileTemplateValue, value, true); }
         }
 
-        private string outputFolderValue = "";
+        private string outputFolderValue = "@InDir\\..\\Hourly";
         public string OutputFolder
         {
             get { return outputFolderValue; }
@@ -125,6 +146,27 @@ namespace AudioSplit
         {
             get { return removeXingHeaderValue; }
             set { SetProperty(ref removeXingHeaderValue, value, true); }
+        }
+
+        private bool showDateInternationalValue = true;
+        public bool ShowDateInternational
+        {
+            get { return showDateInternationalValue; }
+            set { SetProperty(ref showDateInternationalValue, value, true); }
+        }
+
+        private bool showTime24Hour = true;
+        public bool ShowTime24Hour
+        {
+            get { return showTime24Hour; }
+            set { SetProperty(ref showTime24Hour, value, true); }
+        }
+
+        private string siteNameValue = "";
+        public string SiteName
+        {
+            get { return siteNameValue; }
+            set { SetProperty(ref siteNameValue, value, true); }
         }
 
         private int splitDurationDaysValue = 0;
@@ -191,14 +233,6 @@ namespace AudioSplit
         }
 
         // Properties which are not persisted, but trigger property changed.
-        private bool chkAutoExcludeEnabledValue = false;
-        [XmlIgnore]
-        public bool ChkAutoExcludeEnabled
-        {
-            get { return chkAutoExcludeEnabledValue; }
-            set { SetProperty(ref chkAutoExcludeEnabledValue, value, true); }
-        }
-
         private bool chkRemoveXingHeaderEnabledValue = false;
         [XmlIgnore]
         public bool ChkRemoveXingHeaderEnabled
@@ -223,8 +257,18 @@ namespace AudioSplit
             set { SetProperty(ref excludeTimesEnabledValue, value, true); }
         }
 
+        // Contains the full path to the folder (without the filename) of the first entry
+        // in the Input Files table.
+        // This is set by FormMain whenever the input files table changes.
+        private string inDirValue = "";
+        [XmlIgnore]
+        public string InDir
+        {
+            get { return inDirValue; }
+            set { SetProperty(ref inDirValue, value, true); }
+        }
+
         // This is set by FormMain, depending on whether the input has multiple channels.
-        // It is not persisted.
         private bool outputChannelsEnabledValue = true;
         [XmlIgnore]
         public bool OutputChannelsEnabled
@@ -233,19 +277,27 @@ namespace AudioSplit
             set { SetProperty(ref outputChannelsEnabledValue, value, true); }
         }
 
-        private bool outputFolderEnabledValue = false;
-        [XmlIgnore]
-        public bool OutputFolderEnabled
-        {
-            get { return outputFolderEnabledValue; }
-            set { SetProperty(ref outputFolderEnabledValue, value, true); }
-        }
-
         // Methods
         // Load, Save, and SaveIfChanged methods must be defined.
         public static Settings Load()
         {
-            return SimpleSettings.SettingsBase.Load<Settings>();
+            Settings settings = SimpleSettings.SettingsBase.Load<Settings>();
+            if (settings != null)
+            {
+                // Upgrade settings. If AutoExcludeFolder and/or AutoOutputFolder are set, set the
+                // equivalent template based folder values.
+                if (settings.AutoExcludeFolder)
+                {
+                    settings.AutoExcludeFolder = false;
+                    settings.ExcludeFolder = "@OutDir\\Exclude";
+                }
+                if (settings.AutoOutputFolder)
+                {
+                    settings.AutoOutputFolder = false;
+                    settings.OutputFolder = "@InDir\\..\\Hourly";
+                }
+            }
+            return settings;
         }
         public void Save()
         {
@@ -264,27 +316,18 @@ namespace AudioSplit
         {
             base.OnPropertyChanged(propertyName);
 
-            if (propertyName == nameof(ExcludeData))
-            {
-                ChkAutoExcludeEnabled = ExcludeData;
-            }
             if (propertyName == nameof(OutputFormat))
             {
                 ChkRemoveXingHeaderEnabled = OutputFormat == "mp3";
             }
-            if (propertyName == nameof(AutoExcludeFolder) ||
-                propertyName == nameof(ExcludeData))
+            if (propertyName == nameof(ExcludeData))
             {
-                ExcludeFolderEnabled = !AutoExcludeFolder && ExcludeData;
+                ExcludeFolderEnabled = ExcludeData;
             }
             if (propertyName == nameof(SplitEnabled) ||
                 propertyName == nameof(ExcludeData))
             {
                 ExcludeTimesEnabled = SplitEnabled && ExcludeData;
-            }
-            if (propertyName == nameof(AutoOutputFolder))
-            {
-                OutputFolderEnabled = !AutoOutputFolder;
             }
         }
     }

@@ -35,7 +35,7 @@
             this.btnBrowseOutputFolder = new System.Windows.Forms.Button();
             this.txtOutputFolder = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
-            this.txtOutputTemplate = new System.Windows.Forms.TextBox();
+            this.txtOutputFilenameTemplate = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.cbOutputFormat = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -61,31 +61,45 @@
             this.btnBrowseExcludeFolder = new System.Windows.Forms.Button();
             this.txtExcludeFolder = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.btnAbout = new System.Windows.Forms.Button();
             this.btnMoveUp = new System.Windows.Forms.Button();
             this.btnMoveDown = new System.Windows.Forms.Button();
             this.chkStartOnHour = new System.Windows.Forms.CheckBox();
-            this.chkAutoOutputFolder = new System.Windows.Forms.CheckBox();
-            this.chkAutoExcludeFolder = new System.Windows.Forms.CheckBox();
-            this.btnTemplateHelp = new System.Windows.Forms.Button();
-            this.label13 = new System.Windows.Forms.Label();
-            this.labelExample = new System.Windows.Forms.Label();
-            this.chkWriteLogFile = new System.Windows.Forms.CheckBox();
+            this.lblExampleOuputFilename = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.cbChannels = new System.Windows.Forms.ComboBox();
             this.chkRemoveXingHeader = new System.Windows.Forms.CheckBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.txtInputTemplate = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txtSiteName = new System.Windows.Forms.TextBox();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectInputfileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openlogFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showdateInternationalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showTimeIn24HourFormatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.writelogFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.templateHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblResolvedExcludeFolder = new System.Windows.Forms.Label();
+            this.lblResolvedOutputFolder = new System.Windows.Forms.Label();
+            this.lblParseMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitSeconds)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitMinutes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitHours)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitDays)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvInputFiles)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(282, 14);
+            this.btnClear.Location = new System.Drawing.Point(180, 51);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(84, 29);
+            this.btnClear.Size = new System.Drawing.Size(84, 33);
             this.btnClear.TabIndex = 2;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -94,30 +108,30 @@
             // txtTotalDuration
             // 
             this.txtTotalDuration.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTotalDuration.Location = new System.Drawing.Point(798, 311);
+            this.txtTotalDuration.Location = new System.Drawing.Point(801, 298);
             this.txtTotalDuration.Name = "txtTotalDuration";
             this.txtTotalDuration.ReadOnly = true;
             this.txtTotalDuration.Size = new System.Drawing.Size(122, 26);
-            this.txtTotalDuration.TabIndex = 11;
+            this.txtTotalDuration.TabIndex = 8;
             this.txtTotalDuration.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label12
             // 
             this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(678, 314);
+            this.label12.Location = new System.Drawing.Point(681, 301);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(110, 20);
-            this.label12.TabIndex = 10;
+            this.label12.TabIndex = 7;
             this.label12.Text = "Total duration:";
             // 
             // btnRun
             // 
-            this.btnRun.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnRun.Location = new System.Drawing.Point(15, 769);
+            this.btnRun.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnRun.Location = new System.Drawing.Point(430, 877);
             this.btnRun.Name = "btnRun";
-            this.btnRun.Size = new System.Drawing.Size(84, 29);
-            this.btnRun.TabIndex = 44;
+            this.btnRun.Size = new System.Drawing.Size(84, 33);
+            this.btnRun.TabIndex = 47;
             this.btnRun.Text = "Run";
             this.btnRun.UseVisualStyleBackColor = true;
             this.btnRun.Click += new System.EventHandler(this.btnRun_Click);
@@ -125,10 +139,10 @@
             // btnBrowseOutputFolder
             // 
             this.btnBrowseOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(837, 488);
+            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(839, 674);
             this.btnBrowseOutputFolder.Name = "btnBrowseOutputFolder";
-            this.btnBrowseOutputFolder.Size = new System.Drawing.Size(84, 29);
-            this.btnBrowseOutputFolder.TabIndex = 29;
+            this.btnBrowseOutputFolder.Size = new System.Drawing.Size(84, 33);
+            this.btnBrowseOutputFolder.TabIndex = 38;
             this.btnBrowseOutputFolder.Text = "Browse...";
             this.btnBrowseOutputFolder.UseVisualStyleBackColor = true;
             this.btnBrowseOutputFolder.Click += new System.EventHandler(this.btnBrowseOutputFolder_Click);
@@ -137,102 +151,102 @@
             // 
             this.txtOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOutputFolder.Location = new System.Drawing.Point(300, 488);
+            this.txtOutputFolder.Location = new System.Drawing.Point(228, 677);
             this.txtOutputFolder.Name = "txtOutputFolder";
-            this.txtOutputFolder.Size = new System.Drawing.Size(529, 26);
-            this.txtOutputFolder.TabIndex = 28;
+            this.txtOutputFolder.Size = new System.Drawing.Size(604, 26);
+            this.txtOutputFolder.TabIndex = 37;
             this.txtOutputFolder.Validated += new System.EventHandler(this.txtOutputFolder_Validated);
             // 
             // label11
             // 
             this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(15, 491);
+            this.label11.Location = new System.Drawing.Point(18, 680);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(106, 20);
-            this.label11.TabIndex = 26;
+            this.label11.TabIndex = 36;
             this.label11.Text = "Output folder:";
             // 
-            // txtOutputTemplate
+            // txtOutputFilenameTemplate
             // 
-            this.txtOutputTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtOutputFilenameTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOutputTemplate.Location = new System.Drawing.Point(225, 649);
-            this.txtOutputTemplate.Name = "txtOutputTemplate";
-            this.txtOutputTemplate.Size = new System.Drawing.Size(604, 26);
-            this.txtOutputTemplate.TabIndex = 40;
+            this.txtOutputFilenameTemplate.Location = new System.Drawing.Point(228, 801);
+            this.txtOutputFilenameTemplate.Name = "txtOutputFilenameTemplate";
+            this.txtOutputFilenameTemplate.Size = new System.Drawing.Size(604, 26);
+            this.txtOutputFilenameTemplate.TabIndex = 45;
             // 
             // label10
             // 
             this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(15, 652);
+            this.label10.Location = new System.Drawing.Point(18, 804);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(148, 20);
-            this.label10.TabIndex = 39;
-            this.label10.Text = "File name template:";
+            this.label10.Size = new System.Drawing.Size(196, 20);
+            this.label10.TabIndex = 44;
+            this.label10.Text = "Output file name template:";
             // 
             // cbOutputFormat
             // 
             this.cbOutputFormat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbOutputFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbOutputFormat.FormattingEnabled = true;
-            this.cbOutputFormat.Location = new System.Drawing.Point(225, 568);
+            this.cbOutputFormat.Location = new System.Drawing.Point(228, 594);
             this.cbOutputFormat.Name = "cbOutputFormat";
             this.cbOutputFormat.Size = new System.Drawing.Size(136, 28);
-            this.cbOutputFormat.TabIndex = 35;
+            this.cbOutputFormat.TabIndex = 32;
             this.cbOutputFormat.SelectedIndexChanged += new System.EventHandler(this.cbOutputFormat_SelectedIndexChanged);
             // 
             // label9
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(15, 571);
+            this.label9.Location = new System.Drawing.Point(18, 597);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(112, 20);
-            this.label9.TabIndex = 34;
+            this.label9.TabIndex = 31;
             this.label9.Text = "Output format:";
             // 
             // label8
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(362, 452);
+            this.label8.Location = new System.Drawing.Point(368, 553);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(23, 20);
-            this.label8.TabIndex = 24;
+            this.label8.TabIndex = 29;
             this.label8.Text = "to";
             // 
             // dtpExcludeStop
             // 
             this.dtpExcludeStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dtpExcludeStop.CustomFormat = "HH:mm:ss";
-            this.dtpExcludeStop.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.dtpExcludeStop.Location = new System.Drawing.Point(393, 449);
+            this.dtpExcludeStop.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpExcludeStop.Location = new System.Drawing.Point(399, 550);
             this.dtpExcludeStop.Name = "dtpExcludeStop";
             this.dtpExcludeStop.ShowUpDown = true;
-            this.dtpExcludeStop.Size = new System.Drawing.Size(128, 26);
-            this.dtpExcludeStop.TabIndex = 25;
+            this.dtpExcludeStop.Size = new System.Drawing.Size(130, 26);
+            this.dtpExcludeStop.TabIndex = 30;
             // 
             // dtpExcludeStart
             // 
             this.dtpExcludeStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dtpExcludeStart.CustomFormat = "HH:mm:ss";
-            this.dtpExcludeStart.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.dtpExcludeStart.Location = new System.Drawing.Point(225, 449);
+            this.dtpExcludeStart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpExcludeStart.Location = new System.Drawing.Point(228, 550);
             this.dtpExcludeStart.Name = "dtpExcludeStart";
             this.dtpExcludeStart.ShowUpDown = true;
-            this.dtpExcludeStart.Size = new System.Drawing.Size(128, 26);
-            this.dtpExcludeStart.TabIndex = 23;
+            this.dtpExcludeStart.Size = new System.Drawing.Size(130, 26);
+            this.dtpExcludeStart.TabIndex = 28;
             // 
             // chkExclude
             // 
             this.chkExclude.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkExclude.AutoSize = true;
-            this.chkExclude.Location = new System.Drawing.Point(15, 453);
+            this.chkExclude.Location = new System.Drawing.Point(18, 554);
             this.chkExclude.Name = "chkExclude";
             this.chkExclude.Size = new System.Drawing.Size(200, 24);
-            this.chkExclude.TabIndex = 22;
+            this.chkExclude.TabIndex = 27;
             this.chkExclude.Text = "Exclude data between: ";
             this.chkExclude.UseVisualStyleBackColor = true;
             // 
@@ -240,111 +254,111 @@
             // 
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(600, 368);
+            this.label7.Location = new System.Drawing.Point(603, 469);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(76, 20);
-            this.label7.TabIndex = 19;
+            this.label7.TabIndex = 24;
             this.label7.Text = "Seconds:";
             // 
             // udSplitSeconds
             // 
             this.udSplitSeconds.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.udSplitSeconds.Location = new System.Drawing.Point(678, 365);
+            this.udSplitSeconds.Location = new System.Drawing.Point(681, 466);
             this.udSplitSeconds.Name = "udSplitSeconds";
             this.udSplitSeconds.Size = new System.Drawing.Size(51, 26);
-            this.udSplitSeconds.TabIndex = 20;
+            this.udSplitSeconds.TabIndex = 25;
             // 
             // label6
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(465, 368);
+            this.label6.Location = new System.Drawing.Point(468, 469);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(69, 20);
-            this.label6.TabIndex = 17;
+            this.label6.TabIndex = 22;
             this.label6.Text = "Minutes:";
             // 
             // udSplitMinutes
             // 
             this.udSplitMinutes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.udSplitMinutes.Location = new System.Drawing.Point(537, 365);
+            this.udSplitMinutes.Location = new System.Drawing.Point(540, 466);
             this.udSplitMinutes.Name = "udSplitMinutes";
             this.udSplitMinutes.Size = new System.Drawing.Size(51, 26);
-            this.udSplitMinutes.TabIndex = 18;
+            this.udSplitMinutes.TabIndex = 23;
             // 
             // label5
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(342, 368);
+            this.label5.Location = new System.Drawing.Point(345, 469);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(56, 20);
-            this.label5.TabIndex = 15;
+            this.label5.TabIndex = 20;
             this.label5.Text = "Hours:";
             // 
             // udSplitHours
             // 
             this.udSplitHours.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.udSplitHours.Location = new System.Drawing.Point(399, 365);
+            this.udSplitHours.Location = new System.Drawing.Point(402, 466);
             this.udSplitHours.Name = "udSplitHours";
             this.udSplitHours.Size = new System.Drawing.Size(51, 26);
-            this.udSplitHours.TabIndex = 16;
+            this.udSplitHours.TabIndex = 21;
             // 
             // label4
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(225, 368);
+            this.label4.Location = new System.Drawing.Point(228, 469);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(49, 20);
-            this.label4.TabIndex = 13;
+            this.label4.TabIndex = 18;
             this.label4.Text = "Days:";
             // 
             // udSplitDays
             // 
             this.udSplitDays.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.udSplitDays.Location = new System.Drawing.Point(276, 365);
+            this.udSplitDays.Location = new System.Drawing.Point(279, 466);
             this.udSplitDays.Name = "udSplitDays";
             this.udSplitDays.Size = new System.Drawing.Size(51, 26);
-            this.udSplitDays.TabIndex = 14;
+            this.udSplitDays.TabIndex = 19;
             // 
             // dtpStartTime
             // 
             this.dtpStartTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dtpStartTime.CustomFormat = "HH:mm:ss";
             this.dtpStartTime.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.dtpStartTime.Location = new System.Drawing.Point(366, 315);
+            this.dtpStartTime.Location = new System.Drawing.Point(363, 416);
             this.dtpStartTime.Name = "dtpStartTime";
             this.dtpStartTime.ShowUpDown = true;
-            this.dtpStartTime.Size = new System.Drawing.Size(128, 26);
-            this.dtpStartTime.TabIndex = 9;
+            this.dtpStartTime.Size = new System.Drawing.Size(130, 26);
+            this.dtpStartTime.TabIndex = 16;
             // 
             // dtpStartDate
             // 
             this.dtpStartDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.dtpStartDate.CustomFormat = "yyyy/MM/dd";
+            this.dtpStartDate.CustomFormat = "yyyy-MM-dd";
             this.dtpStartDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpStartDate.Location = new System.Drawing.Point(225, 315);
+            this.dtpStartDate.Location = new System.Drawing.Point(228, 416);
             this.dtpStartDate.Name = "dtpStartDate";
-            this.dtpStartDate.Size = new System.Drawing.Size(133, 26);
-            this.dtpStartDate.TabIndex = 8;
+            this.dtpStartDate.Size = new System.Drawing.Size(127, 26);
+            this.dtpStartDate.TabIndex = 15;
             // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(15, 318);
+            this.label2.Location = new System.Drawing.Point(18, 419);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(149, 20);
-            this.label2.TabIndex = 7;
+            this.label2.TabIndex = 14;
             this.label2.Text = "Start date and time:";
             // 
             // btnBrowseInputFiles
             // 
-            this.btnBrowseInputFiles.Location = new System.Drawing.Point(180, 14);
+            this.btnBrowseInputFiles.Location = new System.Drawing.Point(282, 51);
             this.btnBrowseInputFiles.Name = "btnBrowseInputFiles";
-            this.btnBrowseInputFiles.Size = new System.Drawing.Size(84, 29);
-            this.btnBrowseInputFiles.TabIndex = 1;
+            this.btnBrowseInputFiles.Size = new System.Drawing.Size(84, 33);
+            this.btnBrowseInputFiles.TabIndex = 3;
             this.btnBrowseInputFiles.Text = "Browse...";
             this.btnBrowseInputFiles.UseVisualStyleBackColor = true;
             this.btnBrowseInputFiles.Click += new System.EventHandler(this.btnBrowseInputFiles_Click);
@@ -352,10 +366,10 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 25);
+            this.label1.Location = new System.Drawing.Point(12, 65);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(82, 20);
-            this.label1.TabIndex = 0;
+            this.label1.TabIndex = 1;
             this.label1.Text = "Input files:";
             // 
             // dgvInputFiles
@@ -365,11 +379,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvInputFiles.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvInputFiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvInputFiles.Location = new System.Drawing.Point(15, 49);
+            this.dgvInputFiles.Location = new System.Drawing.Point(15, 89);
             this.dgvInputFiles.Name = "dgvInputFiles";
             this.dgvInputFiles.RowHeadersWidth = 62;
             this.dgvInputFiles.RowTemplate.Height = 24;
-            this.dgvInputFiles.Size = new System.Drawing.Size(906, 243);
+            this.dgvInputFiles.Size = new System.Drawing.Size(906, 202);
             this.dgvInputFiles.TabIndex = 6;
             this.dgvInputFiles.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvInputFiles_CellFormatting);
             // 
@@ -377,20 +391,20 @@
             // 
             this.chkSplit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkSplit.AutoSize = true;
-            this.chkSplit.Location = new System.Drawing.Point(15, 368);
+            this.chkSplit.Location = new System.Drawing.Point(18, 469);
             this.chkSplit.Name = "chkSplit";
             this.chkSplit.Size = new System.Drawing.Size(198, 24);
-            this.chkSplit.TabIndex = 12;
+            this.chkSplit.TabIndex = 17;
             this.chkSplit.Text = "Split into files of length:";
             this.chkSplit.UseVisualStyleBackColor = true;
             // 
             // btnBrowseExcludeFolder
             // 
             this.btnBrowseExcludeFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseExcludeFolder.Location = new System.Drawing.Point(837, 526);
+            this.btnBrowseExcludeFolder.Location = new System.Drawing.Point(838, 736);
             this.btnBrowseExcludeFolder.Name = "btnBrowseExcludeFolder";
-            this.btnBrowseExcludeFolder.Size = new System.Drawing.Size(84, 29);
-            this.btnBrowseExcludeFolder.TabIndex = 33;
+            this.btnBrowseExcludeFolder.Size = new System.Drawing.Size(84, 33);
+            this.btnBrowseExcludeFolder.TabIndex = 42;
             this.btnBrowseExcludeFolder.Text = "Browse...";
             this.btnBrowseExcludeFolder.UseVisualStyleBackColor = true;
             this.btnBrowseExcludeFolder.Click += new System.EventHandler(this.btnBrowseExcludeFolder_Click);
@@ -399,39 +413,29 @@
             // 
             this.txtExcludeFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtExcludeFolder.Location = new System.Drawing.Point(300, 526);
+            this.txtExcludeFolder.Location = new System.Drawing.Point(228, 739);
             this.txtExcludeFolder.Name = "txtExcludeFolder";
-            this.txtExcludeFolder.Size = new System.Drawing.Size(529, 26);
-            this.txtExcludeFolder.TabIndex = 32;
+            this.txtExcludeFolder.Size = new System.Drawing.Size(604, 26);
+            this.txtExcludeFolder.TabIndex = 41;
             this.txtExcludeFolder.Validated += new System.EventHandler(this.txtExcludeFolder_Validated);
             // 
             // label3
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(15, 529);
+            this.label3.Location = new System.Drawing.Point(18, 742);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(113, 20);
-            this.label3.TabIndex = 30;
+            this.label3.TabIndex = 40;
             this.label3.Text = "Exclude folder:";
-            // 
-            // btnAbout
-            // 
-            this.btnAbout.Location = new System.Drawing.Point(837, 14);
-            this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Size = new System.Drawing.Size(84, 29);
-            this.btnAbout.TabIndex = 5;
-            this.btnAbout.Text = "About";
-            this.btnAbout.UseVisualStyleBackColor = true;
-            this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
             // 
             // btnMoveUp
             // 
             this.btnMoveUp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMoveUp.Location = new System.Drawing.Point(386, 14);
+            this.btnMoveUp.Location = new System.Drawing.Point(386, 51);
             this.btnMoveUp.Name = "btnMoveUp";
-            this.btnMoveUp.Size = new System.Drawing.Size(27, 29);
-            this.btnMoveUp.TabIndex = 3;
+            this.btnMoveUp.Size = new System.Drawing.Size(31, 33);
+            this.btnMoveUp.TabIndex = 4;
             this.btnMoveUp.Text = "▲";
             this.btnMoveUp.UseVisualStyleBackColor = true;
             this.btnMoveUp.Click += new System.EventHandler(this.btnMoveUp_Click);
@@ -439,10 +443,10 @@
             // btnMoveDown
             // 
             this.btnMoveDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMoveDown.Location = new System.Drawing.Point(420, 14);
+            this.btnMoveDown.Location = new System.Drawing.Point(424, 51);
             this.btnMoveDown.Name = "btnMoveDown";
-            this.btnMoveDown.Size = new System.Drawing.Size(27, 29);
-            this.btnMoveDown.TabIndex = 4;
+            this.btnMoveDown.Size = new System.Drawing.Size(31, 33);
+            this.btnMoveDown.TabIndex = 5;
             this.btnMoveDown.Text = "▼";
             this.btnMoveDown.UseVisualStyleBackColor = true;
             this.btnMoveDown.Click += new System.EventHandler(this.btnMoveDown_Click);
@@ -451,89 +455,31 @@
             // 
             this.chkStartOnHour.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkStartOnHour.AutoSize = true;
-            this.chkStartOnHour.Location = new System.Drawing.Point(15, 410);
+            this.chkStartOnHour.Location = new System.Drawing.Point(18, 511);
             this.chkStartOnHour.Name = "chkStartOnHour";
             this.chkStartOnHour.Size = new System.Drawing.Size(187, 24);
-            this.chkStartOnHour.TabIndex = 21;
+            this.chkStartOnHour.TabIndex = 26;
             this.chkStartOnHour.Text = "Start files on the hour";
             this.chkStartOnHour.UseVisualStyleBackColor = true;
             // 
-            // chkAutoOutputFolder
+            // lblExampleOuputFilename
             // 
-            this.chkAutoOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkAutoOutputFolder.AutoSize = true;
-            this.chkAutoOutputFolder.Location = new System.Drawing.Point(225, 491);
-            this.chkAutoOutputFolder.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.chkAutoOutputFolder.Name = "chkAutoOutputFolder";
-            this.chkAutoOutputFolder.Size = new System.Drawing.Size(69, 24);
-            this.chkAutoOutputFolder.TabIndex = 27;
-            this.chkAutoOutputFolder.Text = "Auto";
-            this.chkAutoOutputFolder.UseVisualStyleBackColor = true;
-            // 
-            // chkAutoExcludeFolder
-            // 
-            this.chkAutoExcludeFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkAutoExcludeFolder.AutoSize = true;
-            this.chkAutoExcludeFolder.Location = new System.Drawing.Point(225, 530);
-            this.chkAutoExcludeFolder.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.chkAutoExcludeFolder.Name = "chkAutoExcludeFolder";
-            this.chkAutoExcludeFolder.Size = new System.Drawing.Size(69, 24);
-            this.chkAutoExcludeFolder.TabIndex = 31;
-            this.chkAutoExcludeFolder.Text = "Auto";
-            this.chkAutoExcludeFolder.UseVisualStyleBackColor = true;
-            // 
-            // btnTemplateHelp
-            // 
-            this.btnTemplateHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTemplateHelp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTemplateHelp.Location = new System.Drawing.Point(837, 649);
-            this.btnTemplateHelp.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnTemplateHelp.Name = "btnTemplateHelp";
-            this.btnTemplateHelp.Size = new System.Drawing.Size(26, 31);
-            this.btnTemplateHelp.TabIndex = 38;
-            this.btnTemplateHelp.Text = "?";
-            this.btnTemplateHelp.UseVisualStyleBackColor = true;
-            this.btnTemplateHelp.Click += new System.EventHandler(this.btnTemplateHelp_Click);
-            // 
-            // label13
-            // 
-            this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(15, 688);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(142, 20);
-            this.label13.TabIndex = 41;
-            this.label13.Text = "Example file name:";
-            // 
-            // labelExample
-            // 
-            this.labelExample.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.labelExample.Location = new System.Drawing.Point(225, 688);
-            this.labelExample.Name = "labelExample";
-            this.labelExample.Size = new System.Drawing.Size(606, 20);
-            this.labelExample.TabIndex = 42;
-            this.labelExample.Text = "example";
-            // 
-            // chkWriteLogFile
-            // 
-            this.chkWriteLogFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkWriteLogFile.AutoSize = true;
-            this.chkWriteLogFile.Location = new System.Drawing.Point(15, 725);
-            this.chkWriteLogFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.chkWriteLogFile.Name = "chkWriteLogFile";
-            this.chkWriteLogFile.Size = new System.Drawing.Size(121, 24);
-            this.chkWriteLogFile.TabIndex = 43;
-            this.chkWriteLogFile.Text = "Write log file";
-            this.chkWriteLogFile.UseVisualStyleBackColor = true;
+            this.lblExampleOuputFilename.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblExampleOuputFilename.AutoEllipsis = true;
+            this.lblExampleOuputFilename.Location = new System.Drawing.Point(228, 834);
+            this.lblExampleOuputFilename.Name = "lblExampleOuputFilename";
+            this.lblExampleOuputFilename.Size = new System.Drawing.Size(604, 22);
+            this.lblExampleOuputFilename.TabIndex = 46;
+            this.lblExampleOuputFilename.Text = "Output filename";
             // 
             // label14
             // 
             this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(15, 612);
+            this.label14.Location = new System.Drawing.Point(18, 638);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(80, 20);
-            this.label14.TabIndex = 37;
+            this.label14.TabIndex = 34;
             this.label14.Text = "Channels:";
             // 
             // cbChannels
@@ -541,42 +487,218 @@
             this.cbChannels.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbChannels.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbChannels.FormattingEnabled = true;
-            this.cbChannels.Location = new System.Drawing.Point(225, 609);
+            this.cbChannels.Location = new System.Drawing.Point(228, 635);
             this.cbChannels.Name = "cbChannels";
             this.cbChannels.Size = new System.Drawing.Size(136, 28);
-            this.cbChannels.TabIndex = 38;
+            this.cbChannels.TabIndex = 35;
             this.cbChannels.SelectedIndexChanged += new System.EventHandler(this.cbChannels_SelectedIndexChanged);
             // 
             // chkRemoveXingHeader
             // 
             this.chkRemoveXingHeader.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkRemoveXingHeader.AutoSize = true;
-            this.chkRemoveXingHeader.Location = new System.Drawing.Point(407, 572);
+            this.chkRemoveXingHeader.Location = new System.Drawing.Point(410, 598);
             this.chkRemoveXingHeader.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chkRemoveXingHeader.Name = "chkRemoveXingHeader";
             this.chkRemoveXingHeader.Size = new System.Drawing.Size(184, 24);
-            this.chkRemoveXingHeader.TabIndex = 36;
+            this.chkRemoveXingHeader.TabIndex = 33;
             this.chkRemoveXingHeader.Text = "Remove Xing header";
             this.chkRemoveXingHeader.UseVisualStyleBackColor = true;
+            // 
+            // label15
+            // 
+            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(19, 338);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(160, 20);
+            this.label15.TabIndex = 9;
+            this.label15.Text = "Input name template:";
+            // 
+            // txtInputTemplate
+            // 
+            this.txtInputTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtInputTemplate.Location = new System.Drawing.Point(228, 335);
+            this.txtInputTemplate.Name = "txtInputTemplate";
+            this.txtInputTemplate.Size = new System.Drawing.Size(604, 26);
+            this.txtInputTemplate.TabIndex = 10;
+            // 
+            // label16
+            // 
+            this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(19, 375);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(85, 20);
+            this.label16.TabIndex = 12;
+            this.label16.Text = "Site name:";
+            // 
+            // txtSiteName
+            // 
+            this.txtSiteName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSiteName.Location = new System.Drawing.Point(228, 372);
+            this.txtSiteName.Name = "txtSiteName";
+            this.txtSiteName.Size = new System.Drawing.Size(286, 26);
+            this.txtSiteName.TabIndex = 13;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.optionsToolStripMenuItem,
+            this.helpToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(938, 33);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectInputfileToolStripMenuItem,
+            this.openlogFileToolStripMenuItem,
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
+            this.fileToolStripMenuItem.Text = "&File";
+            // 
+            // selectInputfileToolStripMenuItem
+            // 
+            this.selectInputfileToolStripMenuItem.Name = "selectInputfileToolStripMenuItem";
+            this.selectInputfileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.selectInputfileToolStripMenuItem.Size = new System.Drawing.Size(299, 34);
+            this.selectInputfileToolStripMenuItem.Text = "Select input &file";
+            this.selectInputfileToolStripMenuItem.Click += new System.EventHandler(this.selectInputfileToolStripMenuItem_Click);
+            // 
+            // openlogFileToolStripMenuItem
+            // 
+            this.openlogFileToolStripMenuItem.Name = "openlogFileToolStripMenuItem";
+            this.openlogFileToolStripMenuItem.Size = new System.Drawing.Size(299, 34);
+            this.openlogFileToolStripMenuItem.Text = "Open &log file";
+            this.openlogFileToolStripMenuItem.Click += new System.EventHandler(this.openlogFileToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(299, 34);
+            this.exitToolStripMenuItem.Text = "E&xit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.Checked = true;
+            this.optionsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showdateInternationalToolStripMenuItem,
+            this.showTimeIn24HourFormatToolStripMenuItem,
+            this.writelogFileToolStripMenuItem});
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(92, 29);
+            this.optionsToolStripMenuItem.Text = "&Options";
+            // 
+            // showdateInternationalToolStripMenuItem
+            // 
+            this.showdateInternationalToolStripMenuItem.CheckOnClick = true;
+            this.showdateInternationalToolStripMenuItem.Name = "showdateInternationalToolStripMenuItem";
+            this.showdateInternationalToolStripMenuItem.Size = new System.Drawing.Size(343, 34);
+            this.showdateInternationalToolStripMenuItem.Text = "Show &date as yyyy-mm-dd";
+            this.showdateInternationalToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showdateInternationalToolStripMenuItem_CheckedChanged);
+            // 
+            // showTimeIn24HourFormatToolStripMenuItem
+            // 
+            this.showTimeIn24HourFormatToolStripMenuItem.CheckOnClick = true;
+            this.showTimeIn24HourFormatToolStripMenuItem.Name = "showTimeIn24HourFormatToolStripMenuItem";
+            this.showTimeIn24HourFormatToolStripMenuItem.Size = new System.Drawing.Size(343, 34);
+            this.showTimeIn24HourFormatToolStripMenuItem.Text = "Show &time in 24 hour format";
+            this.showTimeIn24HourFormatToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showTimeIn24HourFormatToolStripMenuItem_CheckedChanged);
+            // 
+            // writelogFileToolStripMenuItem
+            // 
+            this.writelogFileToolStripMenuItem.CheckOnClick = true;
+            this.writelogFileToolStripMenuItem.Name = "writelogFileToolStripMenuItem";
+            this.writelogFileToolStripMenuItem.Size = new System.Drawing.Size(343, 34);
+            this.writelogFileToolStripMenuItem.Text = "Write &log file";
+            this.writelogFileToolStripMenuItem.Click += new System.EventHandler(this.writelogFileToolStripMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.templateHelpToolStripMenuItem,
+            this.aboutToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 29);
+            this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // templateHelpToolStripMenuItem
+            // 
+            this.templateHelpToolStripMenuItem.Name = "templateHelpToolStripMenuItem";
+            this.templateHelpToolStripMenuItem.Size = new System.Drawing.Size(316, 34);
+            this.templateHelpToolStripMenuItem.Text = "&Template Quick Reference";
+            this.templateHelpToolStripMenuItem.Click += new System.EventHandler(this.nameTemplateHelpToolStripMenuItem_Click);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(316, 34);
+            this.aboutToolStripMenuItem.Text = "&About...";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // lblResolvedExcludeFolder
+            // 
+            this.lblResolvedExcludeFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblResolvedExcludeFolder.AutoEllipsis = true;
+            this.lblResolvedExcludeFolder.Location = new System.Drawing.Point(228, 772);
+            this.lblResolvedExcludeFolder.Name = "lblResolvedExcludeFolder";
+            this.lblResolvedExcludeFolder.Size = new System.Drawing.Size(604, 22);
+            this.lblResolvedExcludeFolder.TabIndex = 43;
+            this.lblResolvedExcludeFolder.Text = "Exclude folder";
+            // 
+            // lblResolvedOutputFolder
+            // 
+            this.lblResolvedOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblResolvedOutputFolder.AutoEllipsis = true;
+            this.lblResolvedOutputFolder.Location = new System.Drawing.Point(228, 710);
+            this.lblResolvedOutputFolder.Name = "lblResolvedOutputFolder";
+            this.lblResolvedOutputFolder.Size = new System.Drawing.Size(604, 22);
+            this.lblResolvedOutputFolder.TabIndex = 39;
+            this.lblResolvedOutputFolder.Text = "Output folder";
+            // 
+            // lblParseMessage
+            // 
+            this.lblParseMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblParseMessage.ForeColor = System.Drawing.Color.Red;
+            this.lblParseMessage.Location = new System.Drawing.Point(838, 338);
+            this.lblParseMessage.Name = "lblParseMessage";
+            this.lblParseMessage.Size = new System.Drawing.Size(85, 22);
+            this.lblParseMessage.TabIndex = 11;
+            this.lblParseMessage.Text = "Error";
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(938, 817);
+            this.ClientSize = new System.Drawing.Size(938, 926);
+            this.Controls.Add(this.lblParseMessage);
+            this.Controls.Add(this.lblResolvedOutputFolder);
+            this.Controls.Add(this.lblResolvedExcludeFolder);
+            this.Controls.Add(this.txtSiteName);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.txtInputTemplate);
+            this.Controls.Add(this.label15);
             this.Controls.Add(this.chkRemoveXingHeader);
             this.Controls.Add(this.cbChannels);
             this.Controls.Add(this.label14);
-            this.Controls.Add(this.chkWriteLogFile);
-            this.Controls.Add(this.labelExample);
-            this.Controls.Add(this.label13);
-            this.Controls.Add(this.btnTemplateHelp);
-            this.Controls.Add(this.chkAutoExcludeFolder);
-            this.Controls.Add(this.chkAutoOutputFolder);
+            this.Controls.Add(this.lblExampleOuputFilename);
             this.Controls.Add(this.chkStartOnHour);
             this.Controls.Add(this.btnMoveDown);
             this.Controls.Add(this.btnMoveUp);
-            this.Controls.Add(this.btnAbout);
             this.Controls.Add(this.btnBrowseExcludeFolder);
             this.Controls.Add(this.txtExcludeFolder);
             this.Controls.Add(this.label3);
@@ -588,7 +710,7 @@
             this.Controls.Add(this.btnBrowseOutputFolder);
             this.Controls.Add(this.txtOutputFolder);
             this.Controls.Add(this.label11);
-            this.Controls.Add(this.txtOutputTemplate);
+            this.Controls.Add(this.txtOutputFilenameTemplate);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.cbOutputFormat);
             this.Controls.Add(this.label9);
@@ -610,7 +732,9 @@
             this.Controls.Add(this.btnBrowseInputFiles);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dgvInputFiles);
-            this.MinimumSize = new System.Drawing.Size(950, 753);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
+            this.MinimumSize = new System.Drawing.Size(950, 912);
             this.Name = "FormMain";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "AudioSplit";
@@ -621,6 +745,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.udSplitHours)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.udSplitDays)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvInputFiles)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -635,7 +761,7 @@
         private System.Windows.Forms.Button btnBrowseOutputFolder;
         private System.Windows.Forms.TextBox txtOutputFolder;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox txtOutputTemplate;
+        private System.Windows.Forms.TextBox txtOutputFilenameTemplate;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ComboBox cbOutputFormat;
         private System.Windows.Forms.Label label9;
@@ -661,19 +787,32 @@
         private System.Windows.Forms.Button btnBrowseExcludeFolder;
         private System.Windows.Forms.TextBox txtExcludeFolder;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button btnAbout;
         private System.Windows.Forms.Button btnMoveUp;
         private System.Windows.Forms.Button btnMoveDown;
         private System.Windows.Forms.CheckBox chkStartOnHour;
-        private System.Windows.Forms.CheckBox chkAutoOutputFolder;
-        private System.Windows.Forms.CheckBox chkAutoExcludeFolder;
-        private System.Windows.Forms.Button btnTemplateHelp;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.Label labelExample;
-        private System.Windows.Forms.CheckBox chkWriteLogFile;
+        private System.Windows.Forms.Label lblExampleOuputFilename;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.ComboBox cbChannels;
         private System.Windows.Forms.CheckBox chkRemoveXingHeader;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox txtInputTemplate;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.TextBox txtSiteName;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectInputfileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openlogFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showdateInternationalToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showTimeIn24HourFormatToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem writelogFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem templateHelpToolStripMenuItem;
+        private System.Windows.Forms.Label lblResolvedExcludeFolder;
+        private System.Windows.Forms.Label lblResolvedOutputFolder;
+        private System.Windows.Forms.Label lblParseMessage;
     }
 }
 

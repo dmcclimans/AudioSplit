@@ -37,20 +37,22 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richText.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richText.Location = new System.Drawing.Point(1, 1);
+            this.richText.Location = new System.Drawing.Point(2, 2);
+            this.richText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.richText.Name = "richText";
             this.richText.ReadOnly = true;
-            this.richText.Size = new System.Drawing.Size(453, 399);
+            this.richText.Size = new System.Drawing.Size(799, 865);
             this.richText.TabIndex = 0;
             this.richText.Text = "";
             // 
             // FormTemplateHelp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(456, 402);
+            this.ClientSize = new System.Drawing.Size(803, 869);
             this.Controls.Add(this.richText);
-            this.MinimumSize = new System.Drawing.Size(340, 280);
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.MinimumSize = new System.Drawing.Size(500, 400);
             this.Name = "FormTemplateHelp";
             this.Text = "AudioSplit Template Help";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormTemplateHelp_FormClosing);

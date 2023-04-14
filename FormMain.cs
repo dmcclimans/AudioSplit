@@ -16,6 +16,8 @@ using FFmpeg.NET.Events;
 using System.Xml.Linq;
 using FolderSelect;
 using CenteredMessageBox;
+using System.Reflection;
+using System.CodeDom.Compiler;
 
 namespace AudioSplit
 {
@@ -45,6 +47,24 @@ namespace AudioSplit
 
         // Text file used to write log file.
         private StreamWriter LogFile { get; set; }
+
+        // The most recently written log filename.
+        private string MostRecentLogFilename = "";
+
+        // The number of folders on the input path to check against the template.
+        // 0 = check filename only
+        // 1 = check filename and folder name
+        // 2 = check filename, folder name, and parent folder name
+        // etc.
+        // Currently set to large value to search all the way to the root.
+        // But if performance becomes an issue, you could make it smaller 
+        // to minimize how many directories you search.
+        public const int inputTemplateSearchLevel = int.MaxValue;
+
+        // These are the output and exclude folder names, after template substitution.
+        // They are only used by the background task that runs when you click the run button
+        private string BGResolvedOutputFolder { get; set; }
+        private string BGResolvedExcludeFolder { get; set; }
 
         public FormMain()
         {
@@ -103,7 +123,12 @@ namespace AudioSplit
             }
             FFmpeg = new Engine(ffmpegPath);
 
+            // Initialize settings in Menu Strip. 
+            // Menu strips don't implement data bindings
+            writelogFileToolStripMenuItem.Checked = Settings.WriteLogFile;
+
             // set up bindings
+            txtSiteName.DataBindings.Add("Text", Settings, nameof(Settings.SiteName));
             dtpStartDate.DataBindings.Add("Value", Settings, nameof(Settings.StartDate), true, DataSourceUpdateMode.OnPropertyChanged);
             dtpStartTime.DataBindings.Add("Value", Settings, nameof(Settings.StartTime), true, DataSourceUpdateMode.OnPropertyChanged);
             chkSplit.DataBindings.Add("Checked", Settings, nameof(Settings.SplitEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
@@ -123,14 +148,7 @@ namespace AudioSplit
             dtpExcludeStart.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeTimesEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
             dtpExcludeStop.DataBindings.Add("Value", Settings, nameof(Settings.ExcludeStopTime), true, DataSourceUpdateMode.OnPropertyChanged);
             dtpExcludeStop.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeTimesEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
-            chkAutoOutputFolder.DataBindings.Add("Checked", Settings, nameof(Settings.AutoOutputFolder), true, DataSourceUpdateMode.OnPropertyChanged);
-            chkAutoOutputFolder.CheckedChanged += chkAutoOutputFolder_CheckedChanged;
             txtOutputFolder.DataBindings.Add("Text", Settings, nameof(Settings.OutputFolder));
-            txtOutputFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.OutputFolderEnabled));
-            btnBrowseOutputFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.OutputFolderEnabled));
-            chkAutoExcludeFolder.DataBindings.Add("Checked", Settings, nameof(Settings.AutoExcludeFolder), true, DataSourceUpdateMode.OnPropertyChanged);
-            chkAutoExcludeFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.ChkAutoExcludeEnabled), true, DataSourceUpdateMode.OnPropertyChanged);
-            chkAutoExcludeFolder.CheckedChanged += chkAutoExcludeFolder_CheckedChanged;
             txtExcludeFolder.DataBindings.Add("Text", Settings, nameof(Settings.ExcludeFolder));
             txtExcludeFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeFolderEnabled));
             btnBrowseExcludeFolder.DataBindings.Add("Enabled", Settings, nameof(Settings.ExcludeFolderEnabled));
@@ -155,11 +173,22 @@ namespace AudioSplit
                 index = 0;
             cbChannels.SelectedIndex = index;
 
-            txtOutputTemplate.DataBindings.Add("Text", Settings, nameof(Settings.OutputFileTemplate));
-            chkWriteLogFile.DataBindings.Add("Checked", Settings, nameof(Settings.WriteLogFile), true, DataSourceUpdateMode.OnPropertyChanged);
+            txtInputTemplate.DataBindings.Add("Text", Settings, nameof(Settings.InputNameTemplate));
+            txtOutputFilenameTemplate.DataBindings.Add("Text", Settings, nameof(Settings.OutputFileTemplate));
+
+            showdateInternationalToolStripMenuItem.Checked = Settings.ShowDateInternational;
+            SetDateFormat();
+            showTimeIn24HourFormatToolStripMenuItem.Checked = Settings.ShowTime24Hour;
+            SetTimeFormat();
 
             Settings.PropertyChanged += Settings_PropertyChanged;
-            MakeExample();
+
+            // On startup, force updates to the parse error message, and folder and file names
+            SetInDir();
+            ParseInputNameTemplate();
+            MakeOutputFolderName();
+            MakeExcludeFolderName();
+            MakeOutputFilename();
 
             FormIsLoaded = true;
         }
@@ -202,6 +231,8 @@ namespace AudioSplit
             dgvInputFiles.Columns[1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
             dgvInputFiles.Columns[2].Visible = false;
             InputFilesTable.ColumnChanged += InputFilesTable_ColumnChanged;
+            InputFilesTable.RowDeleted += InputFilesTable_RowDeleted;
+            Settings.InDir = "";
         }
 
         private async void InputFilesTable_ColumnChanged(object sender, DataColumnChangeEventArgs e)
@@ -210,11 +241,43 @@ namespace AudioSplit
             {
                 if (e.Column.Ordinal == 0)
                 {
-                    // User has changed a filename.
+                    // User has changed the first row.
                     await UpdateMetadata(e.Row);
                     ComputeInputFileStats();
-                    UpdateAutoFolders();
+                    SetInDir();
                 }
+            }
+        }
+
+        private void SetInDir()
+        {
+            string inDir = string.Empty;
+            try
+            {
+                if (InputFilesTable.Rows.Count > 0)
+                {
+                    string inputPath = (string)InputFilesTable.Rows[0][0];
+                    if (!string.IsNullOrWhiteSpace(inputPath))
+                    {
+                        inDir = Path.GetDirectoryName(inputPath);
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore exceptions, which occur when the input string is incorrectly formed
+                // In that case InDir will be empty string.
+            }
+            Settings.InDir = inDir;
+        }
+
+        private void InputFilesTable_RowDeleted(object sender, DataRowChangeEventArgs e)
+        {
+            if (FormIsLoaded)
+            {
+                // User has deleted a row in the datatable
+                ComputeInputFileStats();
+                SetInDir();
             }
         }
 
@@ -342,9 +405,12 @@ namespace AudioSplit
                 // And check for missing files.
                 await UpdateMetadata(TableLength, InputFilesTable.Rows.Count);
 
-                // Update auto folders
-                UpdateAutoFolders();
+                SetInDir();
             }
+        }
+        private void selectInputfileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            btnBrowseInputFiles_Click(sender, e);
         }
 
         // Check the InputFilesTable, from startrow to endrow-1.
@@ -382,44 +448,7 @@ namespace AudioSplit
             }
        }
 
-        private void UpdateAutoFolders()
-        {
-            if (Settings.AutoOutputFolder)
-            {
-                string outputFolder = "";
-                try
-                {
-                    if (InputFilesTable.Rows.Count > 0)
-                    {
-                        DirectoryInfo inputFolder = Directory.GetParent((string)InputFilesTable.Rows[0][0]);
-                        DirectoryInfo baseFolder = inputFolder.Parent;
-                        outputFolder = Path.Combine(baseFolder.FullName, "Hourly");
-                        outputFolder = AddTrailingBackslash(outputFolder);
-                    }
-                }
-                catch (Exception)
-                { }
-                Settings.OutputFolder = outputFolder;
-            }
-            if (Settings.AutoExcludeFolder)
-            {
-                string excludeFolder = "";
-                try
-                {
-                    if (!String.IsNullOrWhiteSpace(Settings.OutputFolder))
-                    {
-                        DirectoryInfo baseFolder = Directory.GetParent(Settings.OutputFolder);
-                        excludeFolder = Path.Combine(baseFolder.FullName, "Exclude");
-                        excludeFolder = AddTrailingBackslash(excludeFolder);
-                    }
-                }
-                catch ( Exception )
-                { }
-                Settings.ExcludeFolder = excludeFolder;
-            }
-        }
-
-        // Compute ProcessingDuration and MissingFileCount.
+         // Compute ProcessingDuration and MissingFileCount.
         // Estimate the SplitFileCount
         // Update the ProcessingDuration textbox.
         private void ComputeInputFileStats()
@@ -451,7 +480,7 @@ namespace AudioSplit
             txtTotalDuration.Text = "";
             InputFilesTable.Clear();
             ComputeInputFileStats();
-            UpdateAutoFolders();
+            SetInDir();
         }
 
         private void btnBrowseOutputFolder_Click(object sender, EventArgs e)
@@ -464,7 +493,6 @@ namespace AudioSplit
             {
                 Settings.OutputFolder = AddTrailingBackslash(dlg.FileName);
             }
-            UpdateAutoFolders();        // Update exclude folder from output.
         }
 
         private void btnBrowseExcludeFolder_Click(object sender, EventArgs e)
@@ -562,7 +590,7 @@ namespace AudioSplit
                 {
                     // The output filename is "Split#.wav", so that this will sort before all the "Split0001.wav"
                     // files. That makes the file rename operation work correctly.
-                    string OutputFileName = Path.Combine(Settings.OutputFolder, "Split#." + Settings.OutputFormat);
+                    string OutputFileName = Path.Combine(BGResolvedOutputFolder, "Split#." + Settings.OutputFormat);
                     CatchUpCommandLine =
                         InputFilesList + " -filter_complex \"" +
                         FilterStreamList +
@@ -578,7 +606,7 @@ namespace AudioSplit
             // Create the command line parameters
             if (Settings.SplitEnabled)
             {
-                string OutputFileName = Path.Combine(Settings.OutputFolder, "Split%04d." + Settings.OutputFormat);
+                string OutputFileName = Path.Combine(BGResolvedOutputFolder, "Split%04d." + Settings.OutputFormat);
                 SplitCommandLine =
                     InputFilesList + " -filter_complex \"" +
                     FilterStreamList +
@@ -599,7 +627,7 @@ namespace AudioSplit
             }
             else
             {
-                string OutputFileName = Path.Combine(Settings.OutputFolder, "Split0000." + Settings.OutputFormat);
+                string OutputFileName = Path.Combine(BGResolvedOutputFolder, "Split0000." + Settings.OutputFormat);
                 SplitCommandLine =
                     InputFilesList + " -filter_complex \"" +
                     FilterStreamList +
@@ -617,12 +645,14 @@ namespace AudioSplit
             FFmpeg.Progress += OnProgress;
             FFmpeg.Error += OnError;
             FFmpeg.Data += OnData;
+            MostRecentLogFilename = "";
             if (Settings.WriteLogFile)
             {
                 try
                 {
-                    string LogFilename = Path.Combine(Settings.OutputFolder, "AudioSplit.log");
+                    string LogFilename = Path.Combine(BGResolvedOutputFolder, "AudioSplit.log");
                     LogFile = new StreamWriter(LogFilename);
+                    MostRecentLogFilename = LogFilename;
                 }
                 catch (Exception)
                 {
@@ -662,51 +692,11 @@ namespace AudioSplit
             }
         }
 
-        private string FormatOutputFilename(string template, DateTime StartTime, int fileNumber)
-        {
-            // Using DateTime.ToString effectively truncates the ms portion.
-            // I want to round to the nearest second, so I add 0.5 seconds to
-            // the StartTime.
-            // DateTime is a value type so the additional 0.5 seconds does not
-            // affect the caller.
-            StartTime = StartTime.AddSeconds(0.5);
-            string Filename = template.Replace("@yyyy", StartTime.ToString("yyyy"));
-            Filename = Filename.Replace("@yy", StartTime.ToString("yy"));
-            Filename = Filename.Replace("@MM", StartTime.ToString("MM"));
-            Filename = Filename.Replace("@dd", StartTime.ToString("dd"));
-            Filename = Filename.Replace("@HH", StartTime.ToString("HH"));
-            Filename = Filename.Replace("@hh", StartTime.ToString("hh"));
-            Filename = Filename.Replace("@mm", StartTime.ToString("mm"));
-            Filename = Filename.Replace("@ss", StartTime.ToString("ss"));
-            Filename = Filename.Replace("@1", (fileNumber + 1).ToString());
-            int start = Filename.IndexOf("@0");
-            if (start >= 0)
-            {
-                int stop = start + 1;
-                while (stop < Filename.Length &&
-                    (Filename[stop] == '0' || Filename[stop] == '1'))
-                {
-                    stop++;
-                }
-                int fn = fileNumber;
-                if (Filename[stop-1] == '1')
-                {
-                    fn++;
-                }
-                int width = stop - start - 1;
-                string formatStr = string.Format("D{0}", width);
-                string fileNumberStr = fn.ToString(formatStr);
-                Filename = Filename.Remove(start, stop - start);
-                Filename = Filename.Insert(start, fileNumberStr);
-            }
-            return Filename;
-        }
-
         private async Task RenameOutputFiles(DateTime StartTime)
         {
             // DateTime is a value type (struct), so the addition to
             // StartTime is not passed back to the caller.
-            string[] FileList = Directory.GetFiles(Settings.OutputFolder, "Split*." + Settings.OutputFormat);
+            string[] FileList = Directory.GetFiles(BGResolvedOutputFolder, "Split*." + Settings.OutputFormat);
             double ExcludeStart = Settings.ExcludeStartTime.TimeOfDay.TotalSeconds;
             double ExcludeStop = Settings.ExcludeStopTime.TimeOfDay.TotalSeconds;
             // Check for Exclude time is at night (across midnight boundary)
@@ -738,11 +728,11 @@ namespace AudioSplit
                 }
                 if (exclude)
                 {
-                    NewName = Path.Combine(Settings.ExcludeFolder, NewName + "." + Settings.OutputFormat);
+                    NewName = Path.Combine(BGResolvedExcludeFolder, NewName + "." + Settings.OutputFormat);
                 }
                 else
                 {
-                    NewName = Path.Combine(Settings.OutputFolder, NewName + "." + Settings.OutputFormat);
+                    NewName = Path.Combine(BGResolvedOutputFolder, NewName + "." + Settings.OutputFormat);
                 }
                 File.Move(FileList[i], NewName);
                 StartTime += dur;
@@ -779,16 +769,26 @@ namespace AudioSplit
                 MessageBoxEx.Show(this, "No output folder specified");
                 return;
             }
-            System.IO.Directory.CreateDirectory(Settings.OutputFolder);
+            BGResolvedOutputFolder = FormatFolderName(Settings.OutputFolder,
+                    Settings.StartDate.Date.Add(Settings.StartTime.TimeOfDay), false);
+            try
+            {
+                System.IO.Directory.CreateDirectory(BGResolvedOutputFolder);
+            }
+            catch (Exception ex) 
+            {
+                MessageBoxEx.Show(this, "Could not create output folder\r\n" + ex.Message);
+                return;
+            }
 
             // Check that the output folder is empty
-            if (Directory.GetFiles(Settings.OutputFolder).Length > 0)
+            if (Directory.GetFiles(BGResolvedOutputFolder).Length > 0)
             {
                 MessageBoxEx.Show(this, "The output folder must be empty.");
                 return;
             }
 
-            if (!CheckTemplate())
+            if (!CheckOutputFilenameTemplate())
             {
                 return;
             }
@@ -814,10 +814,20 @@ namespace AudioSplit
                         MessageBoxEx.Show(this, "No exclude folder specified");
                         return;
                     }
-                    System.IO.Directory.CreateDirectory(Settings.ExcludeFolder);
+                    BGResolvedExcludeFolder = FormatFolderName(Settings.ExcludeFolder,
+                            Settings.StartDate.Date.Add(Settings.StartTime.TimeOfDay), true);
+                    try
+                    {
+                        System.IO.Directory.CreateDirectory(BGResolvedExcludeFolder);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBoxEx.Show(this, "Could not create exclude folder\r\n" + ex.Message);
+                        return;
+                    }
 
                     // Check that the exclude folder is empty
-                    if (Directory.GetFiles(Settings.ExcludeFolder).Length > 0)
+                    if (Directory.GetFiles(BGResolvedExcludeFolder).Length > 0)
                     {
                         MessageBoxEx.Show(this, "The exclude folder must be empty.");
                         return;
@@ -888,11 +898,9 @@ namespace AudioSplit
             }
 
             // Update the duration, and check for missing files.
-            // Update the auto folders.
             try
             {
                 await UpdateMetadata(0, InputFilesTable.Rows.Count);
-                UpdateAutoFolders();
 
                 if (MissingFileCount > 0)
                 {
@@ -1011,7 +1019,7 @@ namespace AudioSplit
             this.Activate();
         }
 
-        private bool CheckTemplate()
+        private bool CheckOutputFilenameTemplate()
         {
             // Check for invalid characters in the output template
             // This is not foolproof, but it helps detect problems early.
@@ -1113,7 +1121,7 @@ namespace AudioSplit
             }
         }
 
-        private void btnAbout_Click(object sender, EventArgs e)
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormAbout dlg = new FormAbout();
             dlg.ShowDialog();
@@ -1156,7 +1164,7 @@ namespace AudioSplit
             InputFilesTable.Rows.RemoveAt(selectedRow);
             InputFilesTable.Rows.InsertAt(newRow, selectedRow-1);
             dgvInputFiles.CurrentCell = dgvInputFiles.Rows[selectedRow - 1].Cells[0];
-            UpdateAutoFolders();
+            SetInDir();
         }
 
         private void btnMoveDown_Click(object sender, EventArgs e)
@@ -1174,29 +1182,7 @@ namespace AudioSplit
             InputFilesTable.Rows.RemoveAt(selectedRow);
             InputFilesTable.Rows.InsertAt(newRow, selectedRow + 1);
             dgvInputFiles.CurrentCell = dgvInputFiles.Rows[selectedRow + 1].Cells[0];
-            UpdateAutoFolders();
-        }
-
-        private void chkAutoOutputFolder_CheckedChanged(object sender, EventArgs e)
-        {
-            if (FormIsLoaded)
-            {
-                if (chkAutoOutputFolder.Checked)
-                {
-                    UpdateAutoFolders();
-                }
-            }
-        }
-
-        private void chkAutoExcludeFolder_CheckedChanged(object sender, EventArgs e)
-        {
-            if (FormIsLoaded)
-            {
-                if (chkAutoExcludeFolder.Checked)
-                {
-                    UpdateAutoFolders();
-                }
-            }
+            SetInDir();
         }
 
         private void cbOutputFormat_SelectedIndexChanged(object sender, EventArgs e)
@@ -1220,7 +1206,6 @@ namespace AudioSplit
             if (FormIsLoaded)
             {
                 Settings.OutputFolder = AddTrailingBackslash(Settings.OutputFolder);
-                UpdateAutoFolders();
             }
         }
 
@@ -1232,43 +1217,573 @@ namespace AudioSplit
             }
         }
 
-        private void btnTemplateHelp_Click(object sender, EventArgs e)
+        private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (FormIsLoaded)
+            {
+                if (e.PropertyName == nameof(Settings.InDir) ||
+                    e.PropertyName == nameof(Settings.InputNameTemplate))
+                {
+                    ParseInputNameTemplate();
+                }
+
+                if (e.PropertyName == nameof(Settings.OutputFileTemplate) ||
+                    e.PropertyName == nameof(Settings.InDir) || 
+                    e.PropertyName == nameof(Settings.SiteName) ||
+                    e.PropertyName == nameof(Settings.OutputFormat) ||
+                    e.PropertyName == nameof(Settings.StartDate) ||
+                    e.PropertyName == nameof(Settings.StartTime)
+                    )
+                {
+                    MakeOutputFilename();
+                }
+
+                if (e.PropertyName == nameof(Settings.OutputFolder) ||
+                    e.PropertyName == nameof(Settings.InDir) || 
+                    e.PropertyName == nameof(Settings.SiteName) ||
+                    e.PropertyName == nameof(Settings.StartDate) ||
+                    e.PropertyName == nameof(Settings.StartTime)
+                    )
+                {
+                    MakeOutputFolderName();
+                }
+
+                if (e.PropertyName == nameof(Settings.ExcludeFolder) ||
+                    e.PropertyName == nameof(Settings.OutputFolder) ||
+                    e.PropertyName == nameof(Settings.InDir) || 
+                    e.PropertyName == nameof(Settings.SiteName) ||
+                    e.PropertyName == nameof(Settings.StartDate) ||
+                    e.PropertyName == nameof(Settings.StartTime)
+                    )
+                {
+                    MakeExcludeFolderName();
+                }
+
+                if (e.PropertyName == nameof(Settings.OutputFileTemplate))
+                {
+                    CheckOutputFilenameTemplate();
+                }
+
+                if (e.PropertyName == nameof(Settings.ShowDateInternational))
+                {
+                    SetDateFormat();
+                }
+
+                if (e.PropertyName == nameof(Settings.ShowTime24Hour))
+                {
+                    SetTimeFormat();
+                }
+            }
+        }
+
+        private void MakeOutputFilename()
+        {
+            string example = FormatOutputFilename(Settings.OutputFileTemplate, 
+                Settings.StartDate.Date.Add(Settings.StartTime.TimeOfDay), 0) +
+                "." + Settings.OutputFormat;
+            lblExampleOuputFilename.Text = example;
+        }
+
+        private void MakeOutputFolderName()
+        {
+            lblResolvedOutputFolder.Text = 
+                FormatFolderName(Settings.OutputFolder,
+                    Settings.StartDate.Date.Add(Settings.StartTime.TimeOfDay), false);
+        }
+
+        private void MakeExcludeFolderName()
+        {
+            lblResolvedExcludeFolder.Text = FormatFolderName(Settings.ExcludeFolder,
+                Settings.StartDate.Date.Add(Settings.StartTime.TimeOfDay), true);
+        }
+
+        private string FormatOutputFilename(string template, DateTime StartTime, int fileNumber)
+        {
+            string Filename = FormatNameSiteDate(template, StartTime);
+
+            Filename = Filename.Replace("@1", (fileNumber + 1).ToString());
+            int start = Filename.IndexOf("@0");
+            if (start >= 0)
+            {
+                int stop = start + 1;
+                while (stop < Filename.Length &&
+                    (Filename[stop] == '0' || Filename[stop] == '1'))
+                {
+                    stop++;
+                }
+                int fn = fileNumber;
+                if (Filename[stop - 1] == '1')
+                {
+                    fn++;
+                }
+                int width = stop - start - 1;
+                string formatStr = string.Format("D{0}", width);
+                string fileNumberStr = fn.ToString(formatStr);
+                Filename = Filename.Remove(start, stop - start);
+                Filename = Filename.Insert(start, fileNumberStr);
+            }
+            return Filename;
+        }
+
+        // Process a template string and replace the site name and all date/time
+        // variables. Return the resulting string (which may have additional variables
+        // yet to be processed)
+        private string FormatNameSiteDate(string template, DateTime StartTime)
+        {
+            string name = template.Replace("@Site", Settings.SiteName);
+            // Using DateTime.ToString effectively truncates the ms portion.
+            // I want to round to the nearest second, so I add 0.5 seconds to
+            // the StartTime.
+            // DateTime is a value type so the additional 0.5 seconds does not
+            // affect the caller.
+            StartTime = StartTime.AddSeconds(0.5);
+            name = name.Replace("@yyyy", StartTime.ToString("yyyy"));
+            name = name.Replace("@yy", StartTime.ToString("yy"));
+            name = name.Replace("@MM", StartTime.ToString("MM"));
+            name = name.Replace("@dd", StartTime.ToString("dd"));
+            name = name.Replace("@HH", StartTime.ToString("HH"));
+            name = name.Replace("@hh", StartTime.ToString("hh"));
+            name = name.Replace("@mm", StartTime.ToString("mm"));
+            name = name.Replace("@ss", StartTime.ToString("ss"));
+            name = name.Replace("@tt", StartTime.ToString("tt"));
+            return name;
+        }
+
+        private string FormatFolderName(string template, DateTime StartTime, bool allowOutDir)
+        {
+            string Foldername = FormatNameSiteDate(template, StartTime);
+
+            if (template.IndexOf("@InDir") >= 0 && InputFilesTable.Rows.Count > 0)
+            {
+                string inputPath = (string)InputFilesTable.Rows[0][0];
+                if (!string.IsNullOrWhiteSpace(inputPath))
+                {
+                    inputPath = Path.GetDirectoryName(inputPath);
+                    Foldername = Foldername.Replace("@InDir", inputPath);
+                    // The template might have ".." in it. It is tempting to use Path.GetFullPath
+                    // to resolve this, yielding a more readable final folder path. However, if 
+                    // @InDir does not exist, or is not defined yet (no input files loaded), then
+                    // GetFullPath cannot resolve the "..", and it returns a path relative to the
+                    // current working directory, which is typically the folder containing the
+                    // AudioSplit.exe file. This is confusing to the user. To avoid this,do not
+                    // call GetFullPath.
+                    // Foldername = Path.GetFullPath(Foldername);
+                }
+            }
+
+            if (allowOutDir && template.IndexOf("@OutDir") >= 0)
+            {
+                string outDir = FormatFolderName(Settings.OutputFolder, StartTime, false);
+                Foldername = Foldername.Replace("@OutDir", outDir);
+                // The template might have ".." in it. It is tempting to use Path.GetFullPath
+                // to resolve this, yielding a more readable final folder path. However, if 
+                // @OutDir does not exist, or @OutDir is not defined yet (possible if no input
+                // files loaded) then GetFullPath cannot resolve the "..", and it returns a path
+                // relative to the current working directory, which is typically the folder
+                // containing the AudioSplit.exe file. This is confusing to the user. To avoid
+                // this, do not call GetFullPath.
+                // Foldername = Path.GetFullPath(Foldername);
+            }
+
+            // Remove double backlashes. They occur because variables like @Outdir end in a backslash,
+            // so a template like "@OutDir\Exclude" results in a double backslash
+            return Foldername.Replace(@"\\", @"\");
+        }
+
+        private void ParseInputNameTemplate()
+        {
+            lblParseMessage.Text = string.Empty;
+            string message = string.Empty; 
+            if (string.IsNullOrWhiteSpace(Settings.InputNameTemplate))
+            { 
+                return; 
+            }
+
+            if (InputFilesTable.Rows.Count == 0)
+            {
+                return;
+            }
+
+            string inputPath = (string)InputFilesTable.Rows[0][0];
+            if (string.IsNullOrWhiteSpace(inputPath))
+            {
+                return;
+            }
+
+            string name = Path.GetFileName(inputPath);
+            int searchLevel = 0;
+            while (searchLevel <= inputTemplateSearchLevel && !string.IsNullOrWhiteSpace(name))
+            {
+                NameParseResult result = ParseInputNameTemplate(Settings.InputNameTemplate, name);
+                if (result.ParseSuccess)
+                {
+                    if (!string.IsNullOrWhiteSpace(result.SiteName))
+                        Settings.SiteName = result.SiteName;
+                    if (result.Date != DateTime.MinValue)
+                    {
+                        Settings.StartDate = result.Date;
+                    }
+                    if (result.Time != DateTime.MinValue)
+                    {
+                        Settings.StartTime = result.Time;
+                    }
+                    return;
+                }
+                else
+                {
+                    // I tried to use result.Message to show the user where the error was in their
+                    // template string. Unfortunately you get a different message for each filename
+                    // and directory that you try to parse, and we don't know which is the right
+                    // message to display. I now just display a generic "Failed" message.
+
+                    // Get the parent folder.
+                    try
+                    {
+                        DirectoryInfo parentFolder = Directory.GetParent(inputPath);
+                        if (parentFolder == null)
+                        {
+                            inputPath = name = "";
+                        }
+                        else
+                        {
+                            inputPath = parentFolder.FullName;
+                            name = parentFolder.Name;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // Could not find a parent directory. Give up.
+                        break;
+                    }
+                }
+                searchLevel++;
+            }
+
+            // Could not parse the file name or any of the folder names.
+            lblParseMessage.Text = "Error";
+        }
+
+        private NameParseResult ParseInputNameTemplate(string template, string name)
+        {
+            NameParseResult result = new NameParseResult();
+
+            int indexName = 0;
+            int indexTemplate = 0;
+            bool pmFound = false;
+            while (indexName < name.Length && indexTemplate < template.Length)
+            {
+                if (template[indexTemplate] == '@')
+                {
+                    indexTemplate++;
+                    string template2 = template.SubstringWithMaxLength(indexTemplate, 2);
+                    string template4 = template.SubstringWithMaxLength(indexTemplate, 4);
+                    if (template4 == "yyyy")
+                    {
+                        string yearString = name.SubstringWithMaxLength(indexName, 4);
+                        if (yearString.Length == 4 && int.TryParse(yearString, out int year))
+                        {
+                            result.Year = year;
+                        }
+                        else
+                        {
+                            result.Message = "Invalid year";
+                            return result;
+                        }
+                        indexName += 4;
+                        indexTemplate += 4;
+                    }
+                    else if (template2 == "yy")
+                    {
+                        string yearString = name.SubstringWithMaxLength(indexName, 2);
+                        if (yearString.Length == 2 && int.TryParse(yearString, out int year))
+                        {
+                            result.Year = (int)(DateTime.Now.Year /100) * 100 + year;
+                        }
+                        else
+                        {
+                            result.Message = "Invalid year";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template2 == "MM")
+                    {
+                        string monthString = name.SubstringWithMaxLength(indexName, 2);
+                        if (monthString.Length == 2 && int.TryParse(monthString, out int month))
+                        {
+                            result.Month = month;
+                        }
+                        else
+                        {
+                            result.Message = "Invalid month";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template2 == "dd")
+                    {
+                        string dayString = name.SubstringWithMaxLength(indexName, 2);
+                        if (dayString.Length == 2 && int.TryParse(dayString, out int day))
+                        {
+                            result.Day = day;
+                        }
+                        else
+                        {
+                            result.Message = "Invalid day";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template2 == "HH")
+                    {
+                        string hour24String = name.SubstringWithMaxLength(indexName, 2);
+                        if (hour24String.Length == 2 && int.TryParse(hour24String, out int hour24))
+                        {
+                            result.Hour = hour24;
+                        }
+                        else
+                        {
+                            result.Message = "Invalid hour";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template2 == "hh")
+                    {
+                        string hour12String = name.SubstringWithMaxLength(indexName, 2);
+                        if (hour12String.Length == 2 && int.TryParse(hour12String, out int hour12))
+                        {
+                            if (pmFound)
+                            {
+                                if (hour12 < 12)
+                                    result.Hour = hour12 + 12;
+                                else
+                                    result.Hour = hour12;
+                            }
+                            else
+                            {
+                                if (hour12 < 12)
+                                    result.Hour = hour12;
+                                else
+                                    result.Hour = 0;
+                            }
+                        }
+                        else
+                        {
+                            result.Message = "Invalid hour";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template2 == "tt")
+                    {
+                        string ampmString = name.SubstringWithMaxLength(indexName, 2);
+                        if (ampmString.Length == 2)
+                        {
+                            if (string.Equals(ampmString, "am", StringComparison.OrdinalIgnoreCase)) 
+                            {
+                                pmFound = false;
+                                if (result.Hour == 12)
+                                {
+                                    result.Hour = 0;
+                                }
+                            }
+                            else if (string.Equals(ampmString, "pm", StringComparison.OrdinalIgnoreCase))
+                            {
+                                pmFound = true;
+                                if (result.Hour > 12)
+                                {
+                                    result.Hour += 12;
+                                }
+                            }
+                            else
+                            {
+                                result.Message = "Invalid AM/PM indicator";
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Message = "Invalid hours";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template2 == "mm")
+                    {
+                        string minuteString = name.SubstringWithMaxLength(indexName, 2);
+                        if (minuteString.Length == 2 && int.TryParse(minuteString, out int minute))
+                        {
+                            result.Minute= minute;
+                        }
+                        else
+                        {
+                            result.Message = "Invalid minutes";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template2 == "ss")
+                    {
+                        string secondString = name.SubstringWithMaxLength(indexName, 2);
+                        if (secondString.Length == 2 && int.TryParse(secondString, out int second))
+                        {
+                            result.Second = second;
+                        }
+                        else
+                        {
+                            result.Message = "Invalid seconds";
+                            return result;
+                        }
+                        indexName += 2;
+                        indexTemplate += 2;
+                    }
+                    else if (template4 == "Site")
+                    {
+                        indexTemplate += 4;
+                        if (indexTemplate >= template.Length)
+                        {
+                            // Site name at end of template
+                            result.SiteName = name.Substring(indexName);
+                            indexName = name.Length;
+                        }
+                        else if (name[indexName] == '@')
+                        {
+                            result.Message = "Character after @Site cannot be @";
+                            return result;
+                        }
+                        else
+                        {
+                            char termChar = template[indexTemplate];
+                            int termPosition = name.IndexOf(termChar, indexName);
+                            if (termPosition < 0)
+                            {
+                                result.Message = "Could not find end of @Site";
+                                return result;
+                            }
+                            result.SiteName = name.SubstringWithMaxLength(indexName, termPosition - indexName);
+                            indexName = termPosition;
+                        }
+                    }
+                }   // end if (template[indexTemplate] == '@')
+                else if (template[indexTemplate] == name[indexName]) 
+                {
+                    indexName++;
+                    indexTemplate++;
+                }
+                else
+                {
+                    return result;
+                }
+            }   // end while
+            result.ParseSuccess = true;
+            return result;
+        }
+
+        private void SetDateFormat()
+        {
+            if (Settings.ShowDateInternational)
+            {
+                dtpStartDate.Format = DateTimePickerFormat.Custom;
+            }
+            else
+            {
+                dtpStartDate.Format = DateTimePickerFormat.Short;
+            }
+        }
+
+        private void SetTimeFormat()
+        {
+            if (Settings.ShowTime24Hour)
+            {
+                dtpStartTime.Format = DateTimePickerFormat.Custom;
+                dtpExcludeStart.Format = DateTimePickerFormat.Custom;
+                dtpExcludeStop.Format = DateTimePickerFormat.Custom;
+            }
+            else
+            {
+                dtpStartTime.Format = DateTimePickerFormat.Time;
+                dtpExcludeStart.Format = DateTimePickerFormat.Time;
+                dtpExcludeStop.Format = DateTimePickerFormat.Time;
+            }
+        }
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void openlogFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // It would be nice to enable or disable the Open Log File menu item by binding it to
+            // a property. But tool strip menu items don't implement a DataBinding property. They
+            // do not inherit from control.
+            // So we check for whether a log file has been written
+            if (!string.IsNullOrEmpty(MostRecentLogFilename))
+            {
+                if (!File.Exists(MostRecentLogFilename))
+                {
+                    MessageBoxEx.Show(this, "Log file does not exist.");
+                }
+                else
+                {
+                    Process.Start(MostRecentLogFilename);
+                }
+            }
+            else
+            {
+                string resolvedOutputFolder =
+                    FormatFolderName(Settings.OutputFolder,
+                        Settings.StartDate.Date.Add(Settings.StartTime.TimeOfDay), false);
+                string LogFilename = Path.Combine(resolvedOutputFolder, "AudioSplit.log");
+                if (!File.Exists(LogFilename))
+                {
+                    MessageBoxEx.Show(this, "Log file does not exist.");
+                }
+                else
+                {
+                    Process.Start(LogFilename);
+                }
+
+            }
+        }
+
+        private void writelogFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            Settings.WriteLogFile = item.Checked;
+        }
+
+        private void nameTemplateHelpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (FormTemplateHelpDlg == null || FormTemplateHelpDlg.IsDisposed)
             {
                 FormTemplateHelpDlg = new FormTemplateHelp();
                 FormTemplateHelpDlg.Settings = Settings;
             }
-            FormTemplateHelpDlg.Show(this);
+            if (!FormTemplateHelpDlg.Visible)
+                FormTemplateHelpDlg.Show(this);
+            if (FormTemplateHelpDlg.WindowState == FormWindowState.Minimized)
+                FormTemplateHelpDlg.WindowState = FormWindowState.Normal;
             FormTemplateHelpDlg.Activate();
         }
 
-        private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void showdateInternationalToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (FormIsLoaded)
-            {
-                if (e.PropertyName == nameof(Settings.OutputFileTemplate) ||
-                    e.PropertyName == nameof(Settings.OutputFormat) ||
-                    e.PropertyName == nameof(Settings.StartDate) ||
-                    e.PropertyName == nameof(Settings.StartTime)
-                    )
-                {
-                    MakeExample();
-                }
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            Settings.ShowDateInternational = item.Checked;
+        }
 
-                if (e.PropertyName == nameof(Settings.OutputFileTemplate))
-                {
-                    CheckTemplate();
-                }
-            }
-         }
-
-        private void MakeExample()
+        private void showTimeIn24HourFormatToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            string example = FormatOutputFilename(Settings.OutputFileTemplate,
-                Settings.StartDate.Date.Add(Settings.StartTime.TimeOfDay), 0) +
-                "." + Settings.OutputFormat;
-            labelExample.Text = example;
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            Settings.ShowTime24Hour = item.Checked;
         }
     }
 
